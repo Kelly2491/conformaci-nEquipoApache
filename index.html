@@ -1,9 +1,9 @@
-v<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tablero Squad Investigativo · Versión Mejorada V6</title>
+  <title>Retro Squad · Identidad del héroe y del squad</title>
   <style>
     :root{
       --azul:#2D6DF6;
@@ -186,6 +186,22 @@ v<!DOCTYPE html>
       font-size:12.5px;
       line-height:1.35;
     }
+
+    .card,
+    .card p,
+    .text-content,
+    .mini-help,
+    details,
+    summary,
+    label,
+    input,
+    select,
+    textarea{
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      line-height:1.25;
+    }
+    .card{padding:16px}
     .range-row{
       display:grid;
       grid-template-columns:88px 1fr;
@@ -288,9 +304,9 @@ v<!DOCTYPE html>
 </head>
 <body>
   <header>
-    <div class="eyebrow">✨ Conozcamos nuestro nuevo equipo</div>
-    <h1>Mi Súper Poder </h1>
-    <p>Una vers</p>
+    <div class="eyebrow">✨ Retro de identidad y acuerdos del squad</div>
+    <h1>Identidad del héroe y del squad</h1>
+    <p><strong>Instrucciones:</strong> Primero cada persona completa su identidad. Luego el equipo revisa las opciones de nombre, vota una y finalmente define acuerdos claros para trabajar mejor durante el sprint.</p>
   </header>
 
   <main class="layout">
@@ -300,11 +316,11 @@ v<!DOCTYPE html>
       </div>
 
       <div class="mini-help">
-        <strong>Cómo usarlo:</strong> completa los campos, sube tu foto, ajusta el rostro y cambia entre Parte 1 y Parte 2 para revisar. Los textos se guardan automáticamente en este navegador.
+        <strong>Instrucciones:</strong> primero cada persona completa su identidad. Luego el equipo revisa las opciones de nombre, vota una y finalmente define acuerdos claros para trabajar mejor durante el sprint. Los textos se guardan automáticamente en este navegador.
       </div>
 
       <details open>
-        <summary>1. Identidad personal</summary>
+        <summary>1. Identidad del héroe del sprint</summary>
         <div class="details-body">
           <label for="name">Nombre</label>
           <input id="name" value="Kelly Lopez" />
@@ -334,7 +350,7 @@ v<!DOCTYPE html>
             </div>
           </div>
 
-          <label for="roleContribution">Desde mi rol / aporte al squad</label>
+          <label for="roleContribution">Cómo aporto al squad</label>
           <textarea id="roleContribution" placeholder="Ej: Desde mi rol acompaño, facilito, valido o conecto al equipo">Acompaño al equipo a trabajar con foco, claridad y buena energía.</textarea>
           <div class="hint">Este campo es independiente del <strong>Rol</strong>; así no se duplica cuando llenas la información.</div>
 
@@ -374,24 +390,24 @@ v<!DOCTYPE html>
       <details open>
         <summary>3. Preguntas personales</summary>
         <div class="details-body">
-          <label for="techLove">Tecnología que amo</label>
-          <textarea id="techLove">IA generativa para crear historias de usuario</textarea>
+          <label for="techLove">Lo que me impulsa</label>
+          <textarea id="techLove" placeholder="Ej: herramientas, temas o prácticas que te motivan en el squad"></textarea>
 
-          <label for="techHate">Tecnología que me reta o quiero mejorar</label>
-          <textarea id="techHate">Herramientas lentas o procesos manuales que quitan tiempo</textarea>
+          <label for="techHate">Lo que necesito fortalecer</label>
+          <textarea id="techHate" placeholder="Ej: algo que quieres aprender, practicar o fortalecer"></textarea>
 
-          <label for="receiveGive">Qué quiero recibir / qué voy a dar a mi equipo</label>
-          <textarea id="receiveGive">Recibir buena energía y dar apoyo, compromiso y actitud positiva al equipo</textarea>
+          <label for="receiveGive">Lo que necesito del equipo / lo que me comprometo a aportar</label>
+          <textarea id="receiveGive" placeholder="Ej: qué necesitas del equipo y qué te comprometes a aportar"></textarea>
 
-          <label for="secret">Pocos saben</label>
-          <textarea id="secret">Me encanta aprender cosas nuevas y compartirlas con el equipo</textarea>
+          <label for="secret">Algo que no todos saben de mí</label>
+          <textarea id="secret" placeholder="Ej: algo que no todos saben de ti"></textarea>
 
           <label for="likes">Gustos</label>
-          <textarea id="likes">Series, música, retos creativos y trabajo en equipo</textarea>
+          <textarea id="likes" placeholder="Ej: hobbies, gustos o intereses"></textarea>
 
-          <label for="story">Cuenta algo</label>
-          <textarea id="story" placeholder="Escribe aquí tu dato curioso, historia corta o mensaje para el equipo">Un dato curioso, una historia corta o algo que quieras compartir con el equipo</textarea>
-          <div class="hint">Este campo alimenta el bloque <strong>Cuenta algo</strong> de la Parte 1.</div>
+          <label for="story">Una curiosidad sobre mí</label>
+          <textarea id="story" placeholder="Escribe aquí tu curiosidad, historia corta o algo que quieras compartir con el equipo"></textarea>
+          <div class="hint">Este campo alimenta el bloque <strong>Una curiosidad sobre mí</strong> de la Parte 1.</div>
         </div>
       </details>
 
@@ -402,36 +418,36 @@ v<!DOCTYPE html>
           <div class="row">
             <div>
               <label for="teamName1">Nombre opción 1</label>
-              <input id="teamName1" value="SWAT Discovery" />
+              <input id="teamName1" placeholder="Escribe una opción de nombre" />
             </div>
             <div>
               <label for="teamName2">Nombre opción 2</label>
-              <input id="teamName2" value="Impact Lab" />
+              <input id="teamName2" placeholder="Escribe una opción de nombre" />
             </div>
           </div>
           <div class="row">
             <div>
               <label for="teamName3">Nombre opción 3</label>
-              <input id="teamName3" value="Ágil Research Squad" />
+              <input id="teamName3" placeholder="Escribe una opción de nombre" />
             </div>
             <div>
               <label for="teamName4">Nombre opción 4</label>
-              <input id="teamName4" value="Discovery Heroes" />
+              <input id="teamName4" placeholder="Escribe una opción de nombre" />
             </div>
           </div>
           <div class="row">
             <div>
               <label for="teamName5">Nombre opción 5</label>
-              <input id="teamName5" value="Innovation Squad" />
+              <input id="teamName5" placeholder="Escribe una opción de nombre" />
             </div>
             <div>
               <label for="teamName6">Nombre opción 6</label>
-              <input id="teamName6" value="Research Force" />
+              <input id="teamName6" placeholder="Escribe una opción de nombre" />
             </div>
           </div>
 
           <label for="chosenName">Nombre elegido o favorito</label>
-          <input id="chosenName" value="Por elegir" />
+          <input id="chosenName" placeholder="Se completa después de la votación" />
         </div>
       </details>
 
@@ -439,19 +455,19 @@ v<!DOCTYPE html>
         <summary>5. Propósito y reglas del juego</summary>
         <div class="details-body">
           <label for="challenge">El reto que tenemos</label>
-          <textarea id="challenge">Entender el objetivo principal del equipo investigativo y alinear cómo vamos a generar impacto</textarea>
+          <textarea id="challenge" placeholder="Describe aquí el reto principal del squad"></textarea>
 
           <label for="questions">Dudas o expectativas frente al reto</label>
-          <textarea id="questions">Aclarar alcance, prioridades, forma de trabajo y próximos pasos</textarea>
+          <textarea id="questions" placeholder="Escribe aquí dudas, expectativas o preguntas del equipo"></textarea>
 
           <label for="connectionTime">¿Qué día dejaremos las ceremonias?</label>
-          <textarea id="connectionTime">Definir el día fijo para dejar programadas las ceremonias del squad</textarea>
+          <textarea id="connectionTime" placeholder="Ej: martes en la mañana o jueves al cierre"></textarea>
 
-          <label for="ceremonies">¿Qué ceremonias SCRUM mantenemos o adaptamos?</label>
-          <textarea id="ceremonies">Daily corta, review de hallazgos, retro de aprendizaje y refinamiento cuando aplique</textarea>
+          <label for="ceremonies">¿Qué ceremonias Scrum mantenemos, ajustamos o eliminamos?</label>
+          <textarea id="ceremonies">Definir cuáles ceremonias mantenemos, cuáles ajustamos y cuáles eliminamos para trabajar con foco</textarea>
 
-          <label for="findingsChannel">¿Por qué canal comunicaremos hallazgos?</label>
-          <textarea id="findingsChannel">Teams, tablero de seguimiento y resumen ejecutivo para stakeholders</textarea>
+          <label for="findingsChannel">¿Por qué canal comunicaremos bloqueos, avances y hallazgos?</label>
+          <textarea id="findingsChannel">Teams, tablero de seguimiento y resumen ejecutivo para comunicar bloqueos, avances y hallazgos</textarea>
         </div>
       </details>
 
@@ -492,7 +508,7 @@ v<!DOCTYPE html>
     const ctx2 = c2.getContext('2d');
     let activePart = 1;
     let userImage = null;
-    const storageKey = 'tableroSquadInvestigativoMejorado:v6';
+    const storageKey = 'tableroSquadInvestigativoMejorado:v8';
     const CANVAS_W = 1800;
     const CANVAS_H = 1400;
 
@@ -1000,7 +1016,7 @@ v<!DOCTYPE html>
     function drawPart1(){
       const ctx = ctx1;
       ctx.clearRect(0,0,CANVAS_W,CANVAS_H);
-      drawHeader(ctx,'Parte 1','Identidad del héroe del sprint','Elegimos nombre, alineamos retos y definimos acuerdos de trabajo');
+      drawHeader(ctx,'Parte 1','Identidad del héroe del sprint','Conoce cómo cada persona aporta al squad');
 
       // Nombre en una tarjeta propia para que no quede pegado ni encima de otros bloques.
       ctx.save();
@@ -1026,10 +1042,10 @@ v<!DOCTYPE html>
       let yR = 218;
       const leftX = 70, rightX = 1170, colW = 560;
 
-      card(ctx,leftX,yL,colW,44,'Tecnología y aprendizaje','#2D6DF6');
+      card(ctx,leftX,yL,colW,44,'Impulso y aprendizaje','#2D6DF6');
       yL += 78;
-      yL += adaptiveSmallCard(ctx,leftX+42,yL,colW-84,'Tecnología que amo',val('techLove'),'#2D6DF6','#F4F8FF',{size:19,minH:86,maxH:180}) + gap;
-      yL += adaptiveSmallCard(ctx,leftX+42,yL,colW-84,'Tecnología que me reta',val('techHate'),'#F97316','#FFF6ED',{size:19,minH:86,maxH:180}) + 28;
+      yL += adaptiveSmallCard(ctx,leftX+42,yL,colW-84,'Lo que me impulsa',val('techLove'),'#2D6DF6','#F4F8FF',{size:19,minH:86,maxH:180}) + gap;
+      yL += adaptiveSmallCard(ctx,leftX+42,yL,colW-84,'Lo que necesito fortalecer',val('techHate'),'#F97316','#FFF6ED',{size:19,minH:86,maxH:180}) + 28;
 
       card(ctx,leftX,yL,colW,44,'Datos importantes','#0F9F6E');
       yL += 78;
@@ -1045,19 +1061,19 @@ v<!DOCTYPE html>
       const rg = splitReceiveGive();
       card(ctx,rightX,yR,colW,44,'También sobre mí','#7048E8');
       yR += 78;
-      yR += adaptiveSmallCard(ctx,rightX+42,yR,colW-84,'Pocos saben',val('secret'),'#7048E8','#F6F3FF',{size:18,minH:82,maxH:180}) + gap;
+      yR += adaptiveSmallCard(ctx,rightX+42,yR,colW-84,'Algo que no todos saben de mí',val('secret'),'#7048E8','#F6F3FF',{size:18,minH:82,maxH:180}) + gap;
       yR += adaptiveSmallCard(ctx,rightX+42,yR,colW-84,'Gustos',val('likes'),'#DB2777','#FFF0F7',{size:18,minH:82,maxH:180}) + gap;
-      yR += adaptiveSmallCard(ctx,rightX+42,yR,colW-84,'Cuenta algo',val('story'),'#7048E8','#FFFFFF',{size:17,minH:82,maxH:200}) + 28;
+      yR += adaptiveSmallCard(ctx,rightX+42,yR,colW-84,'Una curiosidad sobre mí',val('story'),'#7048E8','#FFFFFF',{size:17,minH:82,maxH:200}) + 28;
 
-      card(ctx,rightX,yR,colW,44,'Recibo, entrego y aporto','#174A8B');
+      card(ctx,rightX,yR,colW,44,'Equipo y aporte','#174A8B');
       yR += 78;
       const hRec = adaptiveHeight(ctx,rg.receive,226,{size:18,minH:104,maxH:190});
       const hGive = adaptiveHeight(ctx,rg.give,226,{size:18,minH:104,maxH:190});
       const hPair = Math.max(hRec,hGive);
-      smallCard(ctx,rightX+42,yR,226,hPair,'Quiero recibir',rg.receive,'#0F9F6E','#EAF8EF',{size:18});
-      smallCard(ctx,rightX+292,yR,226,hPair,'Voy a dar',rg.give,'#0F9F6E','#EAF8EF',{size:18});
+      smallCard(ctx,rightX+42,yR,226,hPair,'Lo que necesito del equipo',rg.receive,'#0F9F6E','#EAF8EF',{size:18});
+      smallCard(ctx,rightX+292,yR,226,hPair,'Lo que me comprometo a aportar',rg.give,'#0F9F6E','#EAF8EF',{size:18});
       yR += hPair + gap;
-      yR += adaptiveSmallCard(ctx,rightX+42,yR,colW-84,'Desde mi rol',val('roleContribution') || 'Describe aquí cómo aportas desde tu rol al squad.','#174A8B','#F4F8FF',{size:18,minH:88,maxH:170}) + gap;
+      yR += adaptiveSmallCard(ctx,rightX+42,yR,colW-84,'Cómo aporto al squad',val('roleContribution') || 'Describe aquí cómo aportas desde tu rol al squad.','#174A8B','#F4F8FF',{size:18,minH:88,maxH:170}) + gap;
 
       ctx.save();
       ctx.fillStyle = '#5C708A';
@@ -1084,7 +1100,18 @@ v<!DOCTYPE html>
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(index,x+34,y+35);
-      textBox(ctx,title,x+72,y+20,w-96,h-36,{size:23,minSize:12,weight:900,color:'#15324A',maxLines:3});
+      textBox(ctx,title,x+72,y+20,w-96,h-78,{size:23,minSize:12,weight:900,color:'#15324A',maxLines:3});
+
+      ctx.fillStyle = '#FFFFFF';
+      rr(ctx,x+22,y+h-48,w-44,34,17);
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 2;
+      rr(ctx,x+22,y+h-48,w-44,34,17,false,true);
+      ctx.fillStyle = accent;
+      ctx.font = '900 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`Votar por esta opción · Votos: 0`,x+w/2,y+h-31);
       ctx.restore();
     }
 
@@ -1104,7 +1131,7 @@ v<!DOCTYPE html>
     function drawPart2(){
       const ctx = ctx2;
       ctx.clearRect(0,0,CANVAS_W,CANVAS_H);
-      drawHeader(ctx,'Parte 2','Identidad del squad','Elegir nombre, alinear el reto y definir reglas claras de trabajo');
+      drawHeader(ctx,'Parte 2','Identidad del squad','Elegimos nombre, alineamos retos y definimos acuerdos de trabajo');
 
       const fills = ['#FFF7D6','#EEF5FF','#EAF8EF','#F6F3FF','#FFF0F7','#FFF6ED'];
       const accents = ['#B17600','#2D6DF6','#0F9F6E','#7048E8','#DB2777','#F97316'];
@@ -1114,8 +1141,8 @@ v<!DOCTYPE html>
       for(let i=1;i<=6;i+=2){
         const leftText = optionName(i);
         const rightText = optionName(i+1);
-        const hLeft = adaptiveHeight(ctx,leftText,322,{size:22,minH:92,maxH:165});
-        const hRight = adaptiveHeight(ctx,rightText,322,{size:22,minH:92,maxH:165});
+        const hLeft = adaptiveHeight(ctx,leftText,322,{size:22,minH:126,maxH:185});
+        const hRight = adaptiveHeight(ctx,rightText,322,{size:22,minH:126,maxH:185});
         const rowH = Math.max(hLeft,hRight);
         drawNameProposal(ctx,118,nameY,322,rowH,String(i),leftText,fills[i-1],accents[i-1]);
         drawNameProposal(ctx,460,nameY,322,rowH,String(i+1),rightText,fills[i],accents[i]);
@@ -1126,7 +1153,7 @@ v<!DOCTYPE html>
       ctx.font = '900 20px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('El equipo vota y elige una opción',450,nameY+12);
+      ctx.fillText('Cada persona vota por una opción y el equipo elige el nombre final',450,nameY+12);
       ctx.restore();
 
       card(ctx,870,190,860,44,'Reto y expectativas','#F97316');
@@ -1139,12 +1166,6 @@ v<!DOCTYPE html>
       retoY += firstRow + 18;
       retoY += adaptiveSmallCard(ctx,920,retoY,760,'Nombre elegido',val('chosenName') || 'Pendiente por elegir','#0F9F6E','#EAF8EF',{size:22,minH:88,maxH:180}) + 18;
 
-      ctx.save();
-      ctx.globalAlpha = .98;
-      ctx.fillStyle = '#FFFFFF';
-      rr(ctx,1520,retoY-10,160,174,30);
-      ctx.restore();
-
       const baseY = Math.max(nameY + 70, retoY + 50, 760);
       card(ctx,70,baseY,1660,44,'Reglas del juego','#174A8B');
       const ruleY = baseY + 92;
@@ -1155,14 +1176,14 @@ v<!DOCTYPE html>
       const hChan = adaptiveHeight(ctx,val('findingsChannel'),ruleW,{size:18,minH:150,maxH:260});
       const hRules = Math.max(hDay,hCer,hChan);
       smallCard(ctx,130,ruleY,ruleW,hRules,'📅 ¿Qué día dejaremos las ceremonias?',val('connectionTime'),'#2D6DF6','#F4F8FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
-      smallCard(ctx,130+ruleW+ruleGap,ruleY,ruleW,hRules,'🔁 ¿Qué ceremonias SCRUM mantenemos o adaptamos?',val('ceremonies'),'#0F9F6E','#EAF8EF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
-      smallCard(ctx,130+(ruleW+ruleGap)*2,ruleY,ruleW,hRules,'📣 ¿Por qué canal comunicaremos hallazgos?',val('findingsChannel'),'#7048E8','#F6F3FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
+      smallCard(ctx,130+ruleW+ruleGap,ruleY,ruleW,hRules,'🔁 ¿Qué ceremonias Scrum mantenemos, ajustamos o eliminamos?',val('ceremonies'),'#0F9F6E','#EAF8EF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
+      smallCard(ctx,130+(ruleW+ruleGap)*2,ruleY,ruleW,hRules,'📣 ¿Por qué canal comunicaremos bloqueos, avances y hallazgos?',val('findingsChannel'),'#7048E8','#F6F3FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
 
       ctx.save();
       ctx.fillStyle = '#5C708A';
       ctx.font = '700 18px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('Sugerencia: primero generen opciones de nombre, luego voten y cierren con el nombre elegido.',900,CANVAS_H-54);
+      ctx.fillText('Instrucciones: completen identidades, revisen opciones, voten y cierren acuerdos accionables para el sprint.',900,CANVAS_H-54);
       ctx.restore();
     }
 
