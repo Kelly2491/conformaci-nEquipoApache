@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tablero Squad Investigativo · Versión Mejorada V6</title>
+  <style>
+    :root{
+      --azul:#2D6DF6;
+      --azul-oscuro:#0F376F;
+      --azul-medio:#174A8B;
+      --azul-claro:#EEF5FF;
+      --amarillo:#FFD447;
+      --amarillo-suave:#FFF7D6;
+      --menta:#EAF8EF;
+      --lila:#F1EFFE;
+      --rosa:#FFF0F3;
+      --texto:#15324A;
+      --muted:#5C708A;
+      --borde:#D9E2EF;
+      --fondo:#F7FAFF;
+      --white:#FFFFFF;
+      --shadow:0 20px 50px rgba(20,64,120,.12);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      color:var(--texto);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(45,109,246,.12), transparent 28%),
+        radial-gradient(circle at 100% 10%, rgba(255,212,71,.20), transparent 25%),
+        linear-gradient(180deg,#F8FBFF 0%,#FFFFFF 100%);
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:radial-gradient(rgba(45,109,246,.11) 1px, transparent 1px);
+      background-size:22px 22px;
+      opacity:.36;
+      mask-image:linear-gradient(180deg, #000 0%, transparent 88%);
+    }
+    header{
+      position:relative;
+      padding:22px 22px 10px;
+      text-align:center;
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 14px;
+      border:1px solid rgba(45,109,246,.22);
+      border-radius:999px;
+      background:rgba(255,255,255,.88);
+      color:var(--azul-oscuro);
+      font-weight:900;
+      font-size:13px;
+      box-shadow:0 10px 26px rgba(45,109,246,.08);
+    }
+    header h1{
+      margin:12px 0 8px;
+      color:var(--azul-oscuro);
+      font-size:clamp(26px,4vw,46px);
+      letter-spacing:-.02em;
+    }
+    header p{
+      margin:0 auto;
+      max-width:920px;
+      color:var(--muted);
+      line-height:1.45;
+      font-size:15px;
+    }
+    .layout{
+      position:relative;
+      display:grid;
+      grid-template-columns:minmax(320px, 410px) 1fr;
+      gap:18px;
+      align-items:start;
+      padding:14px 18px 26px;
+      width:100%;
+    }
+    .panel,.preview{
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--borde);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(10px);
+    }
+    .panel{
+      padding:18px;
+      max-height:calc(100vh - 116px);
+      overflow:auto;
+      scrollbar-width:thin;
+    }
+    .panel-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .panel h2,.preview h2{
+      margin:0;
+      color:var(--azul-oscuro);
+      font-size:22px;
+      letter-spacing:-.01em;
+    }
+    .mini-help{
+      margin:12px 0 16px;
+      padding:12px 14px;
+      border:1px solid #DCE9FF;
+      border-radius:18px;
+      background:linear-gradient(180deg,#F8FBFF,#FFFFFF);
+      color:#38536F;
+      font-size:13px;
+      line-height:1.35;
+    }
+    .mini-help strong{color:var(--azul-oscuro)}
+    details{
+      border:1px solid #DDE7F5;
+      border-radius:18px;
+      background:#FFFFFF;
+      margin:12px 0;
+      overflow:hidden;
+    }
+    details[open]{box-shadow:0 12px 24px rgba(15,55,111,.06)}
+    summary{
+      cursor:pointer;
+      padding:14px 14px;
+      font-weight:900;
+      color:#123E65;
+      background:linear-gradient(90deg,#F1F6FF,#FFFFFF);
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    summary::-webkit-details-marker{display:none}
+    summary::after{
+      content:"⌄";
+      width:26px;
+      height:26px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:var(--azul-claro);
+      color:var(--azul);
+      font-size:18px;
+      transition:.18s ease;
+    }
+    details[open] summary::after{transform:rotate(180deg)}
+    .details-body{padding:0 14px 16px}
+    label{
+      display:block;
+      font-weight:900;
+      margin:14px 0 7px;
+      color:#24364D;
+      font-size:13.5px;
+    }
+    input,select,textarea{
+      width:100%;
+      border:1px solid #C6D4E8;
+      border-radius:14px;
+      padding:11px 12px;
+      font-size:14px;
+      outline:none;
+      background:#fff;
+      color:#152B42;
+      transition:.16s ease;
+    }
+    textarea{min-height:74px;resize:vertical;line-height:1.35}
+    input:focus,select:focus,textarea:focus{
+      border-color:var(--azul);
+      box-shadow:0 0 0 4px rgba(45,109,246,.13);
+    }
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .hint{
+      margin-top:7px;
+      color:#657893;
+      font-size:12.5px;
+      line-height:1.35;
+    }
+    .range-row{
+      display:grid;
+      grid-template-columns:88px 1fr;
+      align-items:center;
+      gap:10px;
+      margin-top:11px;
+      color:#41556D;
+      font-weight:900;
+      font-size:13px;
+    }
+    input[type="range"]{padding:0;accent-color:var(--azul)}
+    .actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:18px}
+    .actions.two{grid-template-columns:1fr 1fr}
+    button{
+      border:0;
+      border-radius:16px;
+      padding:12px 14px;
+      font-weight:900;
+      font-size:14px;
+      cursor:pointer;
+      transition:.18s transform ease,.18s box-shadow ease,.18s background ease;
+      white-space:nowrap;
+    }
+    button:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(45,109,246,.10)}
+    button:active{transform:translateY(0)}
+    .primary{color:white;background:linear-gradient(135deg,var(--azul),var(--azul-medio))}
+    .secondary{color:#684C00;background:#FFF1B6;border:1px solid #FFE08A}
+    .ghost{color:#123E65;background:#EDF5FF;border:1px solid #D3E4FF}
+    .danger{color:#7B2E00;background:#FFF0E8;border:1px solid #FFD8C4}
+    .preview{
+      padding:18px;
+      min-height:calc(100vh - 116px);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .preview-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .switches{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .switches button.active{color:white;background:linear-gradient(135deg,var(--azul),var(--azul-medio));border:0}
+    .canvas-info{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+    }
+    .canvas-wrap{display:none;width:100%}
+    .canvas-wrap.active{display:block}
+    canvas{
+      width:100%;
+      height:auto;
+      max-height:calc(100vh - 210px);
+      object-fit:contain;
+      border-radius:22px;
+      background:#fff;
+      box-shadow:0 24px 60px rgba(15,76,129,.20);
+      border:1px solid #E5ECF7;
+    }
+    .preview:fullscreen{background:white;padding:20px}
+    .preview:fullscreen canvas{max-height:calc(100vh - 100px)}
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:22px;
+      transform:translateX(-50%) translateY(16px);
+      opacity:0;
+      pointer-events:none;
+      background:#0F376F;
+      color:white;
+      padding:12px 16px;
+      border-radius:999px;
+      box-shadow:0 18px 36px rgba(0,0,0,.18);
+      font-size:13px;
+      font-weight:900;
+      transition:.2s ease;
+      z-index:10;
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    @media(max-width:1050px){
+      .layout{grid-template-columns:1fr}
+      .panel{max-height:none}
+      canvas{max-height:none}
+    }
+    @media(max-width:620px){
+      header{padding:18px 14px 8px}
+      .layout{padding:10px 10px 18px}
+      .row,.actions.two{grid-template-columns:1fr}
+      .preview,.panel{padding:14px;border-radius:20px}
+      button{width:100%}
+      .switches{width:100%}
+      .switches button{flex:1}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">✨ Plantilla limpia · Squad Investigativo</div>
+    <h1>Tablero de identidad del squad</h1>
+    <p>Una versión más clara, moderna y liviana: con superhéroes tipo plantilla original, datos importantes, nombres para escoger y mejor ajuste de textos largos.</p>
+  </header>
+
+  <main class="layout">
+    <section class="panel" aria-label="Formulario de información del tablero">
+      <div class="panel-title">
+        <h2>Completa la información</h2>
+      </div>
+
+      <div class="mini-help">
+        <strong>Cómo usarlo:</strong> completa los campos, sube tu foto, ajusta el rostro y cambia entre Parte 1 y Parte 2 para revisar. Los textos se guardan automáticamente en este navegador.
+      </div>
+
+      <details open>
+        <summary>1. Identidad personal</summary>
+        <div class="details-body">
+          <label for="name">Nombre</label>
+          <input id="name" value="Kelly Lopez" />
+
+          <label for="superpowerText">Texto del superpoder</label>
+          <input id="superpowerText" value="Mi superpoder en el squad" />
+
+          <div class="row">
+            <div>
+              <label for="role">Rol</label>
+              <input id="role" value="Scrum Master" />
+            </div>
+            <div>
+              <label for="hero">Superhéroe / plantilla</label>
+              <select id="hero">
+                <option value="heroina_ia">Heroína IA</option>
+                <option value="heroina_agil">Capitana Ágil</option>
+                <option value="heroina_qa">Guardiana QA</option>
+                <option value="heroina_ux">Maga UX</option>
+                <option value="heroe_codigo">Capitán Código</option>
+                <option value="heroe_devops">Titán DevOps</option>
+                <option value="heroe_producto">Héroe Producto</option>
+                <option value="heroina_devops">Ingeniera DevOps</option>
+                <option value="heroina_datos">Ninja Datos</option>
+                <option value="robot_ia">Robot IA</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="roleContribution">Desde mi rol / aporte al squad</label>
+          <textarea id="roleContribution" placeholder="Ej: Desde mi rol acompaño, facilito, valido o conecto al equipo">Acompaño al equipo a trabajar con foco, claridad y buena energía.</textarea>
+          <div class="hint">Este campo es independiente del <strong>Rol</strong>; así no se duplica cuando llenas la información.</div>
+
+          <label for="photo">Foto de la cara</label>
+          <input id="photo" type="file" accept="image/*" />
+          <div class="hint">La foto funciona localmente en el navegador. No se sube a internet ni se guarda en la plantilla.</div>
+
+          <div class="range-row"><span>Zoom</span><input id="zoom" type="range" min="0.6" max="2.8" step="0.01" value="1.12"></div>
+          <div class="range-row"><span>Horizontal</span><input id="offsetX" type="range" min="-180" max="180" step="1" value="0"></div>
+          <div class="range-row"><span>Vertical</span><input id="offsetY" type="range" min="-180" max="180" step="1" value="0"></div>
+        </div>
+      </details>
+
+      <details open>
+        <summary>2. Datos importantes</summary>
+        <div class="details-body">
+          <label for="homeAddress">Dirección de la casa</label>
+          <textarea id="homeAddress" placeholder="Ej: Barrio / dirección / ciudad">Dirección por completar</textarea>
+
+          <div class="row">
+            <div>
+              <label for="birthday">Fecha de cumpleaños</label>
+              <input id="birthday" type="date" />
+            </div>
+            <div>
+              <label for="emergencyPhone">Teléfono de emergencia</label>
+              <input id="emergencyPhone" placeholder="Número de contacto" />
+            </div>
+          </div>
+
+          <label for="emergencyPerson">Persona de emergencia</label>
+          <input id="emergencyPerson" placeholder="Nombre y parentesco" value="Por completar" />
+          <div class="hint">Estos datos quedan solo en la imagen generada y en este navegador si decides conservarlos.</div>
+        </div>
+      </details>
+
+      <details open>
+        <summary>3. Preguntas personales</summary>
+        <div class="details-body">
+          <label for="techLove">Tecnología que amo</label>
+          <textarea id="techLove">IA generativa para crear historias de usuario</textarea>
+
+          <label for="techHate">Tecnología que me reta o quiero mejorar</label>
+          <textarea id="techHate">Herramientas lentas o procesos manuales que quitan tiempo</textarea>
+
+          <label for="receiveGive">Qué quiero recibir / qué voy a dar a mi equipo</label>
+          <textarea id="receiveGive">Recibir buena energía y dar apoyo, compromiso y actitud positiva al equipo</textarea>
+
+          <label for="secret">Pocos saben</label>
+          <textarea id="secret">Me encanta aprender cosas nuevas y compartirlas con el equipo</textarea>
+
+          <label for="likes">Gustos</label>
+          <textarea id="likes">Series, música, retos creativos y trabajo en equipo</textarea>
+
+          <label for="story">Cuenta algo</label>
+          <textarea id="story" placeholder="Escribe aquí tu dato curioso, historia corta o mensaje para el equipo">Un dato curioso, una historia corta o algo que quieras compartir con el equipo</textarea>
+          <div class="hint">Este campo alimenta el bloque <strong>Cuenta algo</strong> de la Parte 1.</div>
+        </div>
+      </details>
+
+      <details open>
+        <summary>4. Identidad del squad</summary>
+        <div class="details-body">
+          <div class="hint">Aquí pueden escribir los nombres que salgan de la lluvia de ideas para que el equipo los vea y escoja.</div>
+          <div class="row">
+            <div>
+              <label for="teamName1">Nombre opción 1</label>
+              <input id="teamName1" value="SWAT Discovery" />
+            </div>
+            <div>
+              <label for="teamName2">Nombre opción 2</label>
+              <input id="teamName2" value="Impact Lab" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="teamName3">Nombre opción 3</label>
+              <input id="teamName3" value="Ágil Research Squad" />
+            </div>
+            <div>
+              <label for="teamName4">Nombre opción 4</label>
+              <input id="teamName4" value="Discovery Heroes" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="teamName5">Nombre opción 5</label>
+              <input id="teamName5" value="Innovation Squad" />
+            </div>
+            <div>
+              <label for="teamName6">Nombre opción 6</label>
+              <input id="teamName6" value="Research Force" />
+            </div>
+          </div>
+
+          <label for="chosenName">Nombre elegido o favorito</label>
+          <input id="chosenName" value="Por elegir" />
+        </div>
+      </details>
+
+      <details open>
+        <summary>5. Propósito y reglas del juego</summary>
+        <div class="details-body">
+          <label for="challenge">El reto que tenemos</label>
+          <textarea id="challenge">Entender el objetivo principal del equipo investigativo y alinear cómo vamos a generar impacto</textarea>
+
+          <label for="questions">Dudas o expectativas frente al reto</label>
+          <textarea id="questions">Aclarar alcance, prioridades, forma de trabajo y próximos pasos</textarea>
+
+          <label for="connectionTime">¿Qué día dejaremos las ceremonias?</label>
+          <textarea id="connectionTime">Definir el día fijo para dejar programadas las ceremonias del squad</textarea>
+
+          <label for="ceremonies">¿Qué ceremonias SCRUM mantenemos o adaptamos?</label>
+          <textarea id="ceremonies">Daily corta, review de hallazgos, retro de aprendizaje y refinamiento cuando aplique</textarea>
+
+          <label for="findingsChannel">¿Por qué canal comunicaremos hallazgos?</label>
+          <textarea id="findingsChannel">Teams, tablero de seguimiento y resumen ejecutivo para stakeholders</textarea>
+        </div>
+      </details>
+
+      <div class="actions">
+        <button class="primary" id="downloadCurrent" type="button">Descargar parte visible PNG</button>
+        <button class="secondary" id="downloadAll" type="button">Descargar ambas partes PNG</button>
+      </div>
+      <div class="actions two">
+        <button class="ghost" id="resetPhoto" type="button">Centrar foto</button>
+        <button class="danger" id="clearSaved" type="button">Limpiar datos</button>
+      </div>
+    </section>
+
+    <section class="preview" aria-label="Vista previa del tablero">
+      <div class="preview-top">
+        <div>
+          <h2>Vista previa</h2>
+          <div class="canvas-info">Tamaño de exportación adaptable: 1800 × 1400 px</div>
+        </div>
+        <div class="switches">
+          <button class="ghost active" id="showPart1" type="button">Parte 1</button>
+          <button class="ghost" id="showPart2" type="button">Parte 2</button>
+          <button class="ghost" id="fullscreen" type="button">Ver grande</button>
+        </div>
+      </div>
+
+      <div class="canvas-wrap active" id="wrap1"><canvas id="part1" width="1800" height="1400"></canvas></div>
+      <div class="canvas-wrap" id="wrap2"><canvas id="part2" width="1800" height="1400"></canvas></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Listo</div>
+
+  <script>
+    const c1 = document.getElementById('part1');
+    const c2 = document.getElementById('part2');
+    const ctx1 = c1.getContext('2d');
+    const ctx2 = c2.getContext('2d');
+    let activePart = 1;
+    let userImage = null;
+    const storageKey = 'tableroSquadInvestigativoMejorado:v6';
+    const CANVAS_W = 1800;
+    const CANVAS_H = 1400;
+
+    const fields = [
+      'name','superpowerText','role','roleContribution','hero','homeAddress','birthday','emergencyPerson','emergencyPhone',
+      'techLove','techHate','receiveGive','secret','likes','story',
+      'teamName1','teamName2','teamName3','teamName4','teamName5','teamName6','chosenName',
+      'challenge','questions','connectionTime','ceremonies','findingsChannel','zoom','offsetX','offsetY'
+    ];
+
+    const cleanState = {
+      name:'', superpowerText:'Mi superpoder en el squad', role:'', roleContribution:'', hero:'heroina_ia', homeAddress:'', birthday:'', emergencyPerson:'', emergencyPhone:'',
+      techLove:'', techHate:'', receiveGive:'', secret:'', likes:'', story:'',
+      teamName1:'', teamName2:'', teamName3:'', teamName4:'', teamName5:'', teamName6:'', chosenName:'',
+      challenge:'', questions:'', connectionTime:'', ceremonies:'', findingsChannel:'', zoom:'1.12', offsetX:'0', offsetY:'0'
+    };
+
+    const heroStyles = {
+      heroina_ia:{label:'Heroína IA',main:'#06B6D4',dark:'#164E63',cape:'#CCFBF1',symbol:'AI',gender:'female',hair:'#241426'},
+      heroina_agil:{label:'Capitana Ágil',main:'#2D6DF6',dark:'#0F376F',cape:'#FFD447',symbol:'⚡',gender:'female',hair:'#2B1A32'},
+      heroina_qa:{label:'Guardiana QA',main:'#7048E8',dark:'#32205E',cape:'#B8F7D4',symbol:'✓',gender:'female',hair:'#2C1B2E'},
+      heroina_ux:{label:'Maga UX',main:'#DB2777',dark:'#831843',cape:'#FBCFE8',symbol:'✦',gender:'female',hair:'#32101F'},
+      heroina_devops:{label:'Ingeniera DevOps',main:'#0F9F6E',dark:'#064E3B',cape:'#D1FAE5',symbol:'∞',gender:'female',hair:'#2C1B2E'},
+      heroina_datos:{label:'Ninja Datos',main:'#2563EB',dark:'#172554',cape:'#C7D2FE',symbol:'▦',gender:'female',hair:'#2B1A32'},
+      heroe_codigo:{label:'Capitán Código',main:'#174A8B',dark:'#0B2342',cape:'#6EE7F9',symbol:'</>',gender:'male',hair:'#1F2937'},
+      heroe_devops:{label:'Titán DevOps',main:'#0F9F6E',dark:'#064E3B',cape:'#FFE08A',symbol:'∞',gender:'male',hair:'#1F2937'},
+      heroe_producto:{label:'Héroe Producto',main:'#F97316',dark:'#7C2D12',cape:'#FFEDD5',symbol:'★',gender:'male',hair:'#1F2937'},
+      robot_ia:{label:'Robot IA',main:'#06B6D4',dark:'#164E63',cape:'#CCFBF1',symbol:'AI',gender:'robot',hair:'#164E63'},
+      /* Compatibilidad con datos guardados de versiones anteriores */
+      agil:{label:'Exploradora Ágil',main:'#2D6DF6',dark:'#0F376F',cape:'#FFD447',symbol:'⚡',gender:'female',hair:'#2B1A32'},
+      codigo:{label:'Capitán Código',main:'#174A8B',dark:'#0B2342',cape:'#6EE7F9',symbol:'</>',gender:'male',hair:'#1F2937'},
+      qa:{label:'Guardiana QA',main:'#7048E8',dark:'#32205E',cape:'#B8F7D4',symbol:'✓',gender:'female',hair:'#2C1B2E'},
+      devops:{label:'Titán DevOps',main:'#0F9F6E',dark:'#064E3B',cape:'#FFE08A',symbol:'∞',gender:'male',hair:'#1F2937'},
+      producto:{label:'Héroe Producto',main:'#F97316',dark:'#7C2D12',cape:'#FFEDD5',symbol:'★',gender:'male',hair:'#1F2937'},
+      datos:{label:'Ninja Datos',main:'#2563EB',dark:'#172554',cape:'#C7D2FE',symbol:'▦',gender:'female',hair:'#2B1A32'},
+      ux:{label:'Maga UX',main:'#DB2777',dark:'#831843',cape:'#FBCFE8',symbol:'✦',gender:'female',hair:'#32101F'},
+      ia:{label:'Robot IA',main:'#06B6D4',dark:'#164E63',cape:'#CCFBF1',symbol:'AI',gender:'robot',hair:'#164E63'}
+    };
+
+    function el(id){return document.getElementById(id)}
+    function val(id){return (el(id)?.value || '').trim()}
+    function numberVal(id, fallback){const n=parseFloat(val(id)); return Number.isFinite(n)?n:fallback}
+
+    function toast(message){
+      const t = el('toast');
+      t.textContent = message;
+      t.classList.add('show');
+      clearTimeout(toast.timer);
+      toast.timer = setTimeout(()=>t.classList.remove('show'),1800);
+    }
+
+    function saveState(){
+      const data = {};
+      fields.forEach(id=>{ if(el(id) && el(id).type !== 'file') data[id] = el(id).value; });
+      try{ localStorage.setItem(storageKey, JSON.stringify(data)); }catch(e){}
+    }
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(storageKey);
+        if(!raw) return;
+        const data = JSON.parse(raw);
+        fields.forEach(id=>{ if(el(id) && data[id] !== undefined) el(id).value = data[id]; });
+      }catch(e){}
+    }
+
+    function rr(ctx,x,y,w,h,r,fill=true,stroke=false){
+      const radius = Math.min(r, w/2, h/2);
+      ctx.beginPath();
+      ctx.moveTo(x+radius,y);
+      ctx.arcTo(x+w,y,x+w,y+h,radius);
+      ctx.arcTo(x+w,y+h,x,y+h,radius);
+      ctx.arcTo(x,y+h,x,y,radius);
+      ctx.arcTo(x,y,x+w,y,radius);
+      ctx.closePath();
+      if(fill) ctx.fill();
+      if(stroke) ctx.stroke();
+    }
+
+    function drawGrid(ctx){
+      ctx.save();
+      ctx.fillStyle = '#FBFCFF';
+      ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
+      ctx.fillStyle = 'rgba(45,109,246,.065)';
+      for(let x=60;x<1760;x+=42){
+        for(let y=64;y<CANVAS_H-40;y+=42){
+          ctx.beginPath();
+          ctx.arc(x,y,2.1,0,Math.PI*2);
+          ctx.fill();
+        }
+      }
+      ctx.fillStyle = 'rgba(255,212,71,.30)';
+      ctx.beginPath(); ctx.arc(1680,120,170,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(45,109,246,.09)';
+      ctx.beginPath(); ctx.arc(70,CANVAS_H-90,210,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+
+    function textBox(ctx,text,x,y,w,h,opt={}){
+      const size = opt.size || 24;
+      const minSize = opt.minSize || 14;
+      const weight = opt.weight || 700;
+      const color = opt.color || '#15324A';
+      const lineGap = opt.lineGap || 1.22;
+      const align = opt.align || 'left';
+      const maxLines = opt.maxLines || 12;
+      const clean = String(text || 'No especificado').replace(/\s+/g,' ').trim() || 'No especificado';
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.textBaseline = 'top';
+      ctx.textAlign = align;
+
+      function splitLongWord(word){
+        const chunks = [];
+        let current = '';
+        for(const ch of word){
+          const test = current + ch;
+          if(ctx.measureText(test).width <= w || !current){
+            current = test;
+          }else{
+            chunks.push(current);
+            current = ch;
+          }
+        }
+        if(current) chunks.push(current);
+        return chunks;
+      }
+
+      function buildLines(fontSize){
+        ctx.font = `${weight} ${fontSize}px Arial`;
+        const words = clean.split(' ');
+        const lines = [];
+        let line = '';
+        for(const word of words){
+          if(ctx.measureText(word).width > w){
+            if(line){ lines.push(line); line = ''; }
+            const chunks = splitLongWord(word);
+            chunks.forEach((chunk,idx)=>{
+              if(idx === chunks.length - 1){ line = chunk; }
+              else{ lines.push(chunk); }
+            });
+            continue;
+          }
+          const test = line ? `${line} ${word}` : word;
+          if(ctx.measureText(test).width <= w || !line){
+            line = test;
+          }else{
+            lines.push(line);
+            line = word;
+          }
+        }
+        if(line) lines.push(line);
+        return lines;
+      }
+
+      let fontSize = size;
+      let lines = buildLines(fontSize);
+      while((lines.length * fontSize * lineGap > h || lines.length > maxLines) && fontSize > minSize){
+        fontSize -= 1;
+        lines = buildLines(fontSize);
+      }
+      const maxFit = Math.min(lines.length, Math.floor(h / (fontSize * lineGap)), maxLines);
+      lines = lines.slice(0, maxFit);
+      if(lines.length < buildLines(fontSize).length && lines.length){
+        let last = lines[lines.length-1];
+        while(ctx.measureText(last + '…').width > w && last.length > 3){ last = last.slice(0,-1); }
+        lines[lines.length-1] = last + '…';
+      }
+      const startX = align === 'center' ? x + w/2 : x;
+      lines.forEach((line,i)=> ctx.fillText(line,startX,y + i*fontSize*lineGap));
+      ctx.restore();
+    }
+
+    function pill(ctx,x,y,w,h,text,fill,color='#0F376F'){
+      ctx.save();
+      ctx.fillStyle = fill;
+      rr(ctx,x,y,w,h,h/2);
+      ctx.fillStyle = color;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '900 24px Arial';
+      ctx.fillText(text,x+w/2,y+h/2+1);
+      ctx.restore();
+    }
+
+    function card(ctx,x,y,w,h,title,accent='#2D6DF6'){
+      ctx.save();
+      ctx.shadowColor = 'rgba(15,55,111,.13)';
+      ctx.shadowBlur = 24;
+      ctx.shadowOffsetY = 12;
+      ctx.fillStyle = 'rgba(255,255,255,.96)';
+      rr(ctx,x,y,w,h,28);
+      ctx.shadowColor = 'transparent';
+      ctx.strokeStyle = '#DCE7F5';
+      ctx.lineWidth = 3;
+      rr(ctx,x,y,w,h,28,false,true);
+      ctx.fillStyle = accent;
+      rr(ctx,x,y,10,h,5);
+      ctx.fillStyle = '#F4F8FF';
+      rr(ctx,x+24,y+22,w-48,60,20);
+      ctx.fillStyle = accent;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '900 28px Arial';
+      ctx.fillText(title,x+w/2,y+52);
+      ctx.restore();
+    }
+
+    function measureWrapped(ctx,text,w,opt={}){
+      const size = opt.size || 21;
+      const minSize = opt.minSize || 12;
+      const weight = opt.weight || 750;
+      const lineGap = opt.lineGap || 1.22;
+      const clean = String(text || 'No especificado').replace(/\s+/g,' ').trim() || 'No especificado';
+      ctx.save();
+      ctx.font = `${weight} ${size}px Arial`;
+      function splitLongWord(word){
+        const chunks = [];
+        let current = '';
+        for(const ch of word){
+          const test = current + ch;
+          if(ctx.measureText(test).width <= w || !current){ current = test; }
+          else{ chunks.push(current); current = ch; }
+        }
+        if(current) chunks.push(current);
+        return chunks;
+      }
+      const words = clean.split(' ');
+      const lines = [];
+      let line = '';
+      for(const word of words){
+        if(ctx.measureText(word).width > w){
+          if(line){ lines.push(line); line = ''; }
+          splitLongWord(word).forEach((chunk,idx,arr)=>{
+            if(idx === arr.length - 1){ line = chunk; }
+            else{ lines.push(chunk); }
+          });
+          continue;
+        }
+        const test = line ? `${line} ${word}` : word;
+        if(ctx.measureText(test).width <= w || !line){ line = test; }
+        else{ lines.push(line); line = word; }
+      }
+      if(line) lines.push(line);
+      ctx.restore();
+      return {lines, height: Math.ceil(lines.length * size * lineGap)};
+    }
+
+    function adaptiveHeight(ctx,text,w,opt={}){
+      const minH = opt.minH || 84;
+      const maxH = opt.maxH || 220;
+      const size = opt.size || 19;
+      const bodyW = w - 48;
+      const measured = measureWrapped(ctx,text,bodyW,{size,weight:opt.weight || 750,lineGap:opt.lineGap || 1.22});
+      return Math.max(minH, Math.min(maxH, measured.height + 80));
+    }
+
+    function smallCard(ctx,x,y,w,h,title,text,accent='#2D6DF6',fill='#F8FBFF',opt={}){
+      ctx.save();
+      ctx.fillStyle = fill;
+      rr(ctx,x,y,w,h,22);
+      ctx.strokeStyle = '#E0E9F6';
+      ctx.lineWidth = 2;
+      rr(ctx,x,y,w,h,22,false,true);
+
+      const titleMaxLines = opt.titleMaxLines || 1;
+      const titleSize = opt.titleSize || 21;
+      const titleMinSize = opt.titleMinSize || 11;
+      const bodyTop = titleMaxLines > 1 ? 76 : 58;
+
+      textBox(ctx,title,x+24,y+18,w-48,bodyTop-28,{size:titleSize,minSize:titleMinSize,weight:900,color:accent,maxLines:titleMaxLines});
+      textBox(ctx,text,x+24,y+bodyTop,w-48,h-bodyTop-20,{size:opt.size || 21,minSize:opt.minSize || 12,weight:750,color:'#15324A',maxLines:opt.maxLines || 99});
+      ctx.restore();
+    }
+
+    function adaptiveSmallCard(ctx,x,y,w,title,text,accent='#2D6DF6',fill='#F8FBFF',opt={}){
+      const h = adaptiveHeight(ctx,text,w,opt);
+      smallCard(ctx,x,y,w,h,title,text,accent,fill,{size:opt.size || 19,minSize:opt.minSize || 12,maxLines:opt.maxLines || 99});
+      return h;
+    }
+
+    function drawHeader(ctx,part,title,subtitle){
+      drawGrid(ctx);
+      ctx.save();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.shadowColor = 'rgba(15,55,111,.11)';
+      ctx.shadowBlur = 24;
+      ctx.shadowOffsetY = 10;
+      rr(ctx,70,46,1660,108,36);
+      ctx.shadowColor = 'transparent';
+      pill(ctx,100,78,170,44,part,'#EEF5FF','#2D6DF6');
+      ctx.fillStyle = '#0F376F';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '900 44px Arial';
+      ctx.fillText(title,900,86);
+      ctx.fillStyle = '#5C708A';
+      ctx.font = '700 23px Arial';
+      ctx.fillText(subtitle,900,124);
+      ctx.restore();
+    }
+
+    function splitReceiveGive(){
+      const raw = val('receiveGive') || 'No especificado';
+      const parts = raw.split(/\s*(?:\/|\|| y dar | dar )\s*/i).filter(Boolean);
+      return {
+        receive: parts[0] || raw,
+        give: parts[1] || raw
+      };
+    }
+
+    function formatBirthday(){
+      const raw = val('birthday');
+      if(!raw) return 'Por completar';
+      const parts = raw.split('-');
+      if(parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      return raw;
+    }
+
+    function optionName(n){
+      return val('teamName' + n) || `Opción ${n}`;
+    }
+
+    function drawAvatar(ctx,x,y,scale=1,options={}){
+      const showLabels = !(options && options.showLabels === false);
+      const type = val('hero') || 'heroina_ia';
+      const style = heroStyles[type] || heroStyles.heroina_ia;
+      const isRobot = style.gender === 'robot';
+      const isFemale = style.gender === 'female';
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.scale(scale,scale);
+
+      // Plantilla original tipo cómic: traje + capa + espacio circular para foto.
+      ctx.save();
+      ctx.globalAlpha = .13;
+      for(let i=0;i<16;i++){
+        ctx.rotate((Math.PI*2)/16);
+        ctx.fillStyle = i % 2 ? style.cape : style.main;
+        ctx.beginPath();
+        ctx.moveTo(0,-54);
+        ctx.lineTo(28,-270);
+        ctx.lineTo(-28,-270);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Capa amplia detrás del cuerpo.
+      ctx.fillStyle = style.cape;
+      ctx.beginPath();
+      ctx.moveTo(-118,56);
+      ctx.bezierCurveTo(-260,155,-292,420,-130,555);
+      ctx.quadraticCurveTo(0,650,130,555);
+      ctx.bezierCurveTo(292,420,260,155,118,56);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(15,55,111,.10)';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+      // Piernas y botas.
+      ctx.fillStyle = style.dark;
+      rr(ctx,-82,418,62,165,28);
+      rr(ctx,20,418,62,165,28);
+      ctx.fillStyle = '#0E1B34';
+      rr(ctx,-122,570,112,38,18);
+      rr(ctx,10,570,112,38,18);
+
+      // Brazos en pose de superhéroe.
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = style.dark;
+      ctx.lineWidth = 46;
+      ctx.beginPath(); ctx.moveTo(-116,172); ctx.quadraticCurveTo(-240,252,-230,405); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(116,172); ctx.quadraticCurveTo(240,252,230,405); ctx.stroke();
+      ctx.fillStyle = '#FFD7BF';
+      ctx.beginPath(); ctx.arc(-230,405,35,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(230,405,35,0,Math.PI*2); ctx.fill();
+
+      // Cuello y traje.
+      ctx.fillStyle = '#FFD7BF';
+      rr(ctx,-34,42,68,92,24);
+      ctx.fillStyle = style.main;
+      rr(ctx,-152,115,304,338,74);
+      ctx.fillStyle = 'rgba(255,255,255,.18)';
+      rr(ctx,-118,146,236,66,34);
+      ctx.strokeStyle = 'rgba(255,255,255,.45)';
+      ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(-86,150); ctx.quadraticCurveTo(0,242,86,150); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-100,254); ctx.lineTo(-58,430); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(100,254); ctx.lineTo(58,430); ctx.stroke();
+
+      // Cinturón y emblema original.
+      ctx.fillStyle = '#FFD447';
+      rr(ctx,-134,356,268,44,16);
+      ctx.fillStyle = style.dark;
+      rr(ctx,-36,346,72,64,15);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.moveTo(0,176); ctx.lineTo(84,224); ctx.lineTo(62,314); ctx.lineTo(0,365); ctx.lineTo(-62,314); ctx.lineTo(-84,224);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = style.dark;
+      ctx.lineWidth = 6;
+      ctx.stroke();
+      ctx.fillStyle = style.main;
+      ctx.font = style.symbol === '</>' ? '900 34px Arial' : style.symbol === 'AI' ? '900 42px Arial' : '900 52px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(style.symbol,0, style.symbol === '</>' ? 267 : 282);
+
+      // Cabeza / plantilla para foto.
+      if(isRobot){
+        ctx.fillStyle = '#DCEBFF';
+        rr(ctx,-118,-112,236,214,54);
+        ctx.strokeStyle = style.dark;
+        ctx.lineWidth = 9;
+        rr(ctx,-118,-112,236,214,54,false,true);
+        ctx.fillStyle = style.dark;
+        rr(ctx,-52,-148,104,38,18);
+        ctx.strokeStyle = style.dark;
+        ctx.lineWidth = 7;
+        ctx.beginPath(); ctx.moveTo(0,-148); ctx.lineTo(0,-190); ctx.stroke();
+        ctx.fillStyle = '#FFD447';
+        ctx.beginPath(); ctx.arc(0,-198,14,0,Math.PI*2); ctx.fill();
+      }else{
+        if(isFemale){
+          ctx.fillStyle = style.hair || '#2B1A32';
+          ctx.beginPath();
+          ctx.moveTo(-124,-4);
+          ctx.bezierCurveTo(-155,-122,-66,-174,0,-154);
+          ctx.bezierCurveTo(74,-174,156,-115,124,14);
+          ctx.bezierCurveTo(154,102,96,162,53,142);
+          ctx.bezierCurveTo(20,163,-22,163,-53,142);
+          ctx.bezierCurveTo(-96,162,-154,98,-124,-4);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,.18)';
+          ctx.beginPath();
+          ctx.moveTo(-44,-137); ctx.bezierCurveTo(-8,-164,57,-130,78,-72); ctx.bezierCurveTo(34,-105,-10,-109,-44,-137); ctx.fill();
+        }else{
+          ctx.fillStyle = style.hair || '#1F2937';
+          ctx.beginPath();
+          ctx.moveTo(-96,-36);
+          ctx.quadraticCurveTo(-55,-130,18,-116);
+          ctx.quadraticCurveTo(96,-104,98,-18);
+          ctx.quadraticCurveTo(30,-50,-96,-36);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+
+      ctx.fillStyle = '#FFD7BF';
+      ctx.beginPath(); ctx.arc(0,0,112,0,Math.PI*2); ctx.fill();
+
+      ctx.save();
+      ctx.beginPath(); ctx.arc(0,0,99,0,Math.PI*2); ctx.clip();
+      if(userImage){
+        const zoom = numberVal('zoom',1.12);
+        const offsetX = numberVal('offsetX',0);
+        const offsetY = numberVal('offsetY',0);
+        const target = 224 * zoom;
+        const ratio = Math.max(target / userImage.width, target / userImage.height);
+        const w = userImage.width * ratio;
+        const h = userImage.height * ratio;
+        ctx.drawImage(userImage,-w/2 + offsetX,-h/2 + offsetY,w,h);
+      }else{
+        ctx.fillStyle = '#FFE5D6'; ctx.fillRect(-105,-105,210,210);
+        ctx.fillStyle = '#0F376F';
+        ctx.font = '900 22px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Sube',0,-8);
+        ctx.fillText('tu foto',0,24);
+      }
+      ctx.restore();
+
+      // Borde de recorte de la cara.
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 13;
+      ctx.beginPath(); ctx.arc(0,0,103,0,Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = style.dark;
+      ctx.lineWidth = 7;
+      ctx.beginPath(); ctx.arc(0,0,116,0,Math.PI*2); ctx.stroke();
+
+      if(showLabels){
+        ctx.fillStyle = 'rgba(255,255,255,.98)';
+        rr(ctx,-235,626,470,64,32);
+        ctx.strokeStyle = '#E0E9F6'; ctx.lineWidth = 2; rr(ctx,-235,626,470,64,32,false,true);
+        ctx.fillStyle = style.dark;
+        ctx.font = '900 28px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(style.label,0,658);
+
+        ctx.fillStyle = 'rgba(255,255,255,.98)';
+        rr(ctx,-255,706,510,64,32);
+        ctx.strokeStyle = '#E0E9F6'; ctx.lineWidth = 2; rr(ctx,-255,706,510,64,32,false,true);
+        ctx.fillStyle = style.dark;
+        ctx.font = '900 23px Arial';
+        const roleTxt = 'Rol: ' + (val('role') || 'Rol por definir');
+        textBox(ctx,roleTxt,-230,724,460,30,{size:23,minSize:15,weight:900,color:style.dark,align:'center',maxLines:1});
+      }
+      ctx.restore();
+    }
+
+    function drawPart1(){
+      const ctx = ctx1;
+      ctx.clearRect(0,0,CANVAS_W,CANVAS_H);
+      drawHeader(ctx,'Parte 1','Identidad personal','La vista previa usa todos los campos y cada bloque se ajusta al tamaño del texto');
+
+      // Nombre en una tarjeta propia para que no quede pegado ni encima de otros bloques.
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,255,255,.97)';
+      ctx.shadowColor = 'rgba(15,55,111,.14)';
+      ctx.shadowBlur = 24;
+      ctx.shadowOffsetY = 10;
+      rr(ctx,640,178,520,96,32);
+      ctx.shadowColor = 'transparent';
+      ctx.strokeStyle = '#DCE7F5';
+      ctx.lineWidth = 3;
+      rr(ctx,640,178,520,96,32,false,true);
+      textBox(ctx,val('name') || 'Nombre',675,199,450,48,{size:38,minSize:20,weight:900,color:'#0F376F',align:'center',maxLines:1});
+      ctx.fillStyle = '#FFF4C2';
+      rr(ctx,675,248,450,42,21);
+      textBox(ctx,val('superpowerText') || 'Mi superpoder en el squad',698,258,404,22,{size:21,minSize:11,weight:900,color:'#684C00',align:'center',maxLines:1});
+      ctx.restore();
+
+      drawAvatar(ctx,900,472,.76);
+
+      const gap = 16;
+      let yL = 218;
+      let yR = 218;
+      const leftX = 70, rightX = 1170, colW = 560;
+
+      card(ctx,leftX,yL,colW,44,'Tecnología y aprendizaje','#2D6DF6');
+      yL += 78;
+      yL += adaptiveSmallCard(ctx,leftX+42,yL,colW-84,'Tecnología que amo',val('techLove'),'#2D6DF6','#F4F8FF',{size:19,minH:86,maxH:180}) + gap;
+      yL += adaptiveSmallCard(ctx,leftX+42,yL,colW-84,'Tecnología que me reta',val('techHate'),'#F97316','#FFF6ED',{size:19,minH:86,maxH:180}) + 28;
+
+      card(ctx,leftX,yL,colW,44,'Datos importantes','#0F9F6E');
+      yL += 78;
+      yL += adaptiveSmallCard(ctx,leftX+42,yL,colW-84,'Dirección de la casa',val('homeAddress'),'#0F9F6E','#EAF8EF',{size:18,minH:90,maxH:200}) + gap;
+      const hCumple = adaptiveHeight(ctx,formatBirthday(),226,{size:19,minH:82,maxH:136});
+      const hEmerg = adaptiveHeight(ctx,val('emergencyPerson'),226,{size:18,minH:82,maxH:152});
+      const hRow = Math.max(hCumple,hEmerg);
+      smallCard(ctx,leftX+42,yL,226,hRow,'Cumpleaños',formatBirthday(),'#B17600','#FFF7D6',{size:19});
+      smallCard(ctx,leftX+292,yL,226,hRow,'Emergencia',val('emergencyPerson'),'#DB2777','#FFF0F7',{size:18});
+      yL += hRow + gap;
+      yL += adaptiveSmallCard(ctx,leftX+42,yL,colW-84,'Teléfono emergencia',val('emergencyPhone') || 'Por completar','#174A8B','#F4F8FF',{size:20,minH:82,maxH:145}) + gap;
+
+      const rg = splitReceiveGive();
+      card(ctx,rightX,yR,colW,44,'También sobre mí','#7048E8');
+      yR += 78;
+      yR += adaptiveSmallCard(ctx,rightX+42,yR,colW-84,'Pocos saben',val('secret'),'#7048E8','#F6F3FF',{size:18,minH:82,maxH:180}) + gap;
+      yR += adaptiveSmallCard(ctx,rightX+42,yR,colW-84,'Gustos',val('likes'),'#DB2777','#FFF0F7',{size:18,minH:82,maxH:180}) + gap;
+      yR += adaptiveSmallCard(ctx,rightX+42,yR,colW-84,'Cuenta algo',val('story'),'#7048E8','#FFFFFF',{size:17,minH:82,maxH:200}) + 28;
+
+      card(ctx,rightX,yR,colW,44,'Recibo, entrego y aporto','#174A8B');
+      yR += 78;
+      const hRec = adaptiveHeight(ctx,rg.receive,226,{size:18,minH:104,maxH:190});
+      const hGive = adaptiveHeight(ctx,rg.give,226,{size:18,minH:104,maxH:190});
+      const hPair = Math.max(hRec,hGive);
+      smallCard(ctx,rightX+42,yR,226,hPair,'Quiero recibir',rg.receive,'#0F9F6E','#EAF8EF',{size:18});
+      smallCard(ctx,rightX+292,yR,226,hPair,'Voy a dar',rg.give,'#0F9F6E','#EAF8EF',{size:18});
+      yR += hPair + gap;
+      yR += adaptiveSmallCard(ctx,rightX+42,yR,colW-84,'Desde mi rol',val('roleContribution') || 'Describe aquí cómo aportas desde tu rol al squad.','#174A8B','#F4F8FF',{size:18,minH:88,maxH:170}) + gap;
+
+      ctx.save();
+      ctx.fillStyle = '#5C708A';
+      ctx.font = '700 18px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Los bloques crecen hasta un límite y luego reducen la fuente para conservar legibilidad.',900,CANVAS_H-54);
+      ctx.restore();
+    }
+
+
+    function drawNameProposal(ctx,x,y,w,h,index,title,fill,accent){
+      ctx.save();
+      ctx.fillStyle = fill;
+      rr(ctx,x,y,w,h,24);
+      ctx.strokeStyle = '#E0E9F6';
+      ctx.lineWidth = 3;
+      rr(ctx,x,y,w,h,24,false,true);
+      ctx.fillStyle = accent;
+      ctx.beginPath();
+      ctx.arc(x+34,y+34,22,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 21px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(index,x+34,y+35);
+      textBox(ctx,title,x+72,y+20,w-96,h-36,{size:23,minSize:12,weight:900,color:'#15324A',maxLines:3});
+      ctx.restore();
+    }
+
+    function drawRule(ctx,x,y,label,text,icon,accent){
+      ctx.save();
+      ctx.fillStyle = '#F8FBFF';
+      rr(ctx,x,y,540,76,22);
+      ctx.strokeStyle = '#E0E9F6'; ctx.lineWidth = 2; rr(ctx,x,y,540,76,22,false,true);
+      ctx.fillStyle = accent;
+      ctx.beginPath(); ctx.arc(x+40,y+38,22,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFFFFF'; ctx.font = '900 22px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(icon,x+40,y+38);
+      ctx.fillStyle = accent; ctx.font = '900 21px Arial'; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(label,x+78,y+12);
+      textBox(ctx,text,x+78,y+38,434,26,{size:17,minSize:11,weight:750,color:'#15324A',maxLines:2});
+      ctx.restore();
+    }
+
+    function drawPart2(){
+      const ctx = ctx2;
+      ctx.clearRect(0,0,CANVAS_W,CANVAS_H);
+      drawHeader(ctx,'Parte 2','Identidad del squad','Elegir nombre, alinear el reto y definir reglas claras de trabajo');
+
+      const fills = ['#FFF7D6','#EEF5FF','#EAF8EF','#F6F3FF','#FFF0F7','#FFF6ED'];
+      const accents = ['#B17600','#2D6DF6','#0F9F6E','#7048E8','#DB2777','#F97316'];
+
+      card(ctx,70,190,760,44,'Nombres para escoger','#2D6DF6');
+      let nameY = 278;
+      for(let i=1;i<=6;i+=2){
+        const leftText = optionName(i);
+        const rightText = optionName(i+1);
+        const hLeft = adaptiveHeight(ctx,leftText,322,{size:22,minH:92,maxH:165});
+        const hRight = adaptiveHeight(ctx,rightText,322,{size:22,minH:92,maxH:165});
+        const rowH = Math.max(hLeft,hRight);
+        drawNameProposal(ctx,118,nameY,322,rowH,String(i),leftText,fills[i-1],accents[i-1]);
+        drawNameProposal(ctx,460,nameY,322,rowH,String(i+1),rightText,fills[i],accents[i]);
+        nameY += rowH + 16;
+      }
+      ctx.save();
+      ctx.fillStyle = '#2D6DF6';
+      ctx.font = '900 20px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('El equipo vota y elige una opción',450,nameY+12);
+      ctx.restore();
+
+      card(ctx,870,190,860,44,'Reto y expectativas','#F97316');
+      let retoY = 278;
+      const hChallenge = adaptiveHeight(ctx,val('challenge'),370,{size:18,minH:140,maxH:260});
+      const hQuestions = adaptiveHeight(ctx,val('questions'),360,{size:18,minH:140,maxH:260});
+      const firstRow = Math.max(hChallenge,hQuestions);
+      smallCard(ctx,920,retoY,370,firstRow,'El reto que tenemos',val('challenge'),'#F97316','#FFF6ED',{size:18});
+      smallCard(ctx,1320,retoY,360,firstRow,'Dudas / expectativas',val('questions'),'#B17600','#FFF7D6',{size:18});
+      retoY += firstRow + 18;
+      retoY += adaptiveSmallCard(ctx,920,retoY,760,'Nombre elegido',val('chosenName') || 'Pendiente por elegir','#0F9F6E','#EAF8EF',{size:22,minH:88,maxH:180}) + 18;
+
+      ctx.save();
+      ctx.globalAlpha = .98;
+      ctx.fillStyle = '#FFFFFF';
+      rr(ctx,1520,retoY-10,160,174,30);
+      ctx.restore();
+
+      const baseY = Math.max(nameY + 70, retoY + 50, 760);
+      card(ctx,70,baseY,1660,44,'Reglas del juego','#174A8B');
+      const ruleY = baseY + 92;
+      const ruleW = 500;
+      const ruleGap = 30;
+      const hDay = adaptiveHeight(ctx,val('connectionTime'),ruleW,{size:18,minH:150,maxH:260});
+      const hCer = adaptiveHeight(ctx,val('ceremonies'),ruleW,{size:18,minH:150,maxH:260});
+      const hChan = adaptiveHeight(ctx,val('findingsChannel'),ruleW,{size:18,minH:150,maxH:260});
+      const hRules = Math.max(hDay,hCer,hChan);
+      smallCard(ctx,130,ruleY,ruleW,hRules,'📅 ¿Qué día dejaremos las ceremonias?',val('connectionTime'),'#2D6DF6','#F4F8FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
+      smallCard(ctx,130+ruleW+ruleGap,ruleY,ruleW,hRules,'🔁 ¿Qué ceremonias SCRUM mantenemos o adaptamos?',val('ceremonies'),'#0F9F6E','#EAF8EF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
+      smallCard(ctx,130+(ruleW+ruleGap)*2,ruleY,ruleW,hRules,'📣 ¿Por qué canal comunicaremos hallazgos?',val('findingsChannel'),'#7048E8','#F6F3FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
+
+      ctx.save();
+      ctx.fillStyle = '#5C708A';
+      ctx.font = '700 18px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sugerencia: primero generen opciones de nombre, luego voten y cierren con el nombre elegido.',900,CANVAS_H-54);
+      ctx.restore();
+    }
+
+
+    function render(){ drawPart1(); drawPart2(); }
+
+    function show(part){
+      activePart = part;
+      el('wrap1').classList.toggle('active',part===1);
+      el('wrap2').classList.toggle('active',part===2);
+      el('showPart1').classList.toggle('active',part===1);
+      el('showPart2').classList.toggle('active',part===2);
+    }
+
+    function safeName(){
+      return (val('name') || 'squad').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'squad';
+    }
+    function downloadCanvas(canvas,name){
+      const link = document.createElement('a');
+      link.download = name;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    fields.forEach(id=>{
+      const input = el(id);
+      if(!input) return;
+      input.addEventListener('input',()=>{ saveState(); render(); });
+      input.addEventListener('change',()=>{ saveState(); render(); });
+    });
+
+    el('photo').addEventListener('change',(e)=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => { userImage = img; render(); toast('Foto cargada'); };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    el('showPart1').addEventListener('click',()=>show(1));
+    el('showPart2').addEventListener('click',()=>show(2));
+
+    el('downloadCurrent').addEventListener('click',()=>{
+      render();
+      downloadCanvas(activePart===1 ? c1 : c2, `tablero-${safeName()}-parte-${activePart}.png`);
+      toast('Descarga iniciada');
+    });
+    el('downloadAll').addEventListener('click',()=>{
+      render();
+      downloadCanvas(c1,`tablero-${safeName()}-parte-1.png`);
+      setTimeout(()=>downloadCanvas(c2,`tablero-${safeName()}-parte-2.png`),350);
+      toast('Descargando ambas partes');
+    });
+    el('fullscreen').addEventListener('click',()=>{
+      const preview = document.querySelector('.preview');
+      if(!document.fullscreenElement){ preview.requestFullscreen?.(); }
+      else{ document.exitFullscreen?.(); }
+    });
+    el('resetPhoto').addEventListener('click',()=>{
+      el('zoom').value = 1.12;
+      el('offsetX').value = 0;
+      el('offsetY').value = 0;
+      saveState(); render(); toast('Foto centrada');
+    });
+    el('clearSaved').addEventListener('click',()=>{
+      fields.forEach(id=>{
+        const input = el(id);
+        if(!input || input.type === 'file') return;
+        input.value = cleanState[id] ?? '';
+      });
+      userImage = null;
+      if(el('photo')) el('photo').value = '';
+      try{ localStorage.setItem(storageKey, JSON.stringify(cleanState)); }catch(e){}
+      render();
+      toast('Datos limpiados');
+    });
+
+    loadState();
+    render();
+  </script>
+</body>
+</html>
