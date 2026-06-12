@@ -573,8 +573,8 @@
           <textarea id="findingsChannel" placeholder="Ej: Teams, correo, tablero, chat o canal definido por el squad"></textarea>
 
           <div class="live-team-panel">
-            <h3>Aportes del equipo en vivo</h3>
-            <div class="hint">Lo que escriba cada integrante se muestra aquí para todos. Cada persona solo edita su propio aporte.</div>
+            <h3>Aportes de otros integrantes</h3>
+            <div class="hint">Este bloque es solo de consulta: aquí se ven los aportes del equipo. Tus campos de arriba siguen vacíos para que escribas tu propia respuesta.</div>
             <div id="liveContributions" class="live-contributions"></div>
           </div>
         </div>
@@ -632,7 +632,7 @@
     const ctx2 = c2.getContext('2d');
     let activePart = 1;
     let userImage = null;
-    const storageKey = 'tableroSquadInvestigativoMejorado:v10';
+    const storageKey = 'tableroSquadInvestigativoMejorado:v11';
     const CANVAS_W = 1800;
     const CANVAS_H = 1400;
     window.teamVotes = window.teamVotes || {1:0,2:0,3:0,4:0,5:0,6:0};
@@ -968,8 +968,7 @@
     }
 
     function optionName(n){
-      const proposals = teamProposals();
-      return proposals[n-1] || 'Nombre por escribir';
+      return val('teamName' + n) || 'Nombre por escribir';
     }
 
     function drawAvatar(ctx,x,y,scale=1,options={}){
@@ -1300,26 +1299,26 @@
 
       card(ctx,870,190,860,44,'Reto y expectativas','#F97316');
       let retoY = 278;
-      const hChallenge = adaptiveHeight(ctx,boardText('challenge'),370,{size:18,minH:140,maxH:260});
-      const hQuestions = adaptiveHeight(ctx,boardText('questions'),360,{size:18,minH:140,maxH:260});
+      const hChallenge = adaptiveHeight(ctx,localBoardText('challenge'),370,{size:18,minH:140,maxH:260});
+      const hQuestions = adaptiveHeight(ctx,localBoardText('questions'),360,{size:18,minH:140,maxH:260});
       const firstRow = Math.max(hChallenge,hQuestions);
-      smallCard(ctx,920,retoY,370,firstRow,'El reto que tenemos',boardText('challenge'),'#F97316','#FFF6ED',{size:18});
-      smallCard(ctx,1320,retoY,360,firstRow,'Dudas / expectativas',boardText('questions'),'#B17600','#FFF7D6',{size:18});
+      smallCard(ctx,920,retoY,370,firstRow,'El reto que tenemos',localBoardText('challenge'),'#F97316','#FFF6ED',{size:18});
+      smallCard(ctx,1320,retoY,360,firstRow,'Dudas / expectativas',localBoardText('questions'),'#B17600','#FFF7D6',{size:18});
       retoY += firstRow + 18;
-      retoY += adaptiveSmallCard(ctx,920,retoY,760,'Nombre elegido',boardText('chosenName','Pendiente por elegir'),'#0F9F6E','#EAF8EF',{size:22,minH:88,maxH:180}) + 18;
+      retoY += adaptiveSmallCard(ctx,920,retoY,760,'Nombre elegido',localBoardText('chosenName','Pendiente por elegir'),'#0F9F6E','#EAF8EF',{size:22,minH:88,maxH:180}) + 18;
 
       const baseY = Math.max(nameY + 70, retoY + 50, 760);
       card(ctx,70,baseY,1660,44,'Reglas del juego','#174A8B');
       const ruleY = baseY + 92;
       const ruleW = 500;
       const ruleGap = 30;
-      const hDay = adaptiveHeight(ctx,boardText('connectionTime'),ruleW,{size:18,minH:150,maxH:260});
-      const hCer = adaptiveHeight(ctx,boardText('ceremonies'),ruleW,{size:18,minH:150,maxH:260});
-      const hChan = adaptiveHeight(ctx,boardText('findingsChannel'),ruleW,{size:18,minH:150,maxH:260});
+      const hDay = adaptiveHeight(ctx,localBoardText('connectionTime'),ruleW,{size:18,minH:150,maxH:260});
+      const hCer = adaptiveHeight(ctx,localBoardText('ceremonies'),ruleW,{size:18,minH:150,maxH:260});
+      const hChan = adaptiveHeight(ctx,localBoardText('findingsChannel'),ruleW,{size:18,minH:150,maxH:260});
       const hRules = Math.max(hDay,hCer,hChan);
-      smallCard(ctx,130,ruleY,ruleW,hRules,'📅 ¿Qué día dejaremos las ceremonias?',boardText('connectionTime'),'#2D6DF6','#F4F8FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
-      smallCard(ctx,130+ruleW+ruleGap,ruleY,ruleW,hRules,'🔁 ¿Qué ceremonias Scrum mantenemos, ajustamos o eliminamos?',boardText('ceremonies'),'#0F9F6E','#EAF8EF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
-      smallCard(ctx,130+(ruleW+ruleGap)*2,ruleY,ruleW,hRules,'📣 ¿Por qué canal comunicaremos bloqueos, avances y hallazgos?',boardText('findingsChannel'),'#7048E8','#F6F3FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
+      smallCard(ctx,130,ruleY,ruleW,hRules,'📅 ¿Qué día dejaremos las ceremonias?',localBoardText('connectionTime'),'#2D6DF6','#F4F8FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
+      smallCard(ctx,130+ruleW+ruleGap,ruleY,ruleW,hRules,'🔁 ¿Qué ceremonias Scrum mantenemos, ajustamos o eliminamos?',localBoardText('ceremonies'),'#0F9F6E','#EAF8EF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
+      smallCard(ctx,130+(ruleW+ruleGap)*2,ruleY,ruleW,hRules,'📣 ¿Por qué canal comunicaremos bloqueos, avances y hallazgos?',localBoardText('findingsChannel'),'#7048E8','#F6F3FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
 
       ctx.save();
       ctx.fillStyle = '#5C708A';
@@ -1450,6 +1449,10 @@
       return items.map(item => `${item.name}: ${item.text}`).join(' • ');
     }
 
+    function localBoardText(field, fallback='Pendiente por completar'){
+      return val(field) || fallback;
+    }
+
     function teamProposals(){
       const seen = new Set();
       const proposals = [];
@@ -1555,7 +1558,7 @@
           window.myVote = data.voters && data.voters[clientId] ? Number(data.voters[clientId].choice) : null;
           renderVoteGrid();
           render();
-          setCollabStatus('Firebase conectado: todos ven los aportes en vivo. Cada integrante edita solo su propio texto, sin bloquear a los demás.');
+          setCollabStatus('Firebase conectado: tus campos son personales. Los aportes de otros se ven abajo en modo consulta, sin llenar tu formulario.');
         }, error => {
           console.error(error);
           firebaseReady = false;
