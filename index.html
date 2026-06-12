@@ -179,6 +179,15 @@
       border-color:var(--azul);
       box-shadow:0 0 0 4px rgba(45,109,246,.13);
     }
+    input.locked-shared, textarea.locked-shared{
+      background:#F3F6FA;
+      color:#657893;
+      border-style:dashed;
+      cursor:not-allowed;
+    }
+    input.locked-shared::placeholder, textarea.locked-shared::placeholder{
+      color:#8EA0B7;
+    }
     .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .hint{
       margin-top:7px;
@@ -231,6 +240,47 @@
       color:#657893;
       font-size:12.5px;
       line-height:1.35;
+    }
+    .live-team-panel{
+      margin-top:18px;
+      padding:14px;
+      border:1px solid #DCE9FF;
+      border-radius:18px;
+      background:linear-gradient(180deg,#F8FBFF,#FFFFFF);
+    }
+    .live-team-panel h3{
+      margin:0 0 6px;
+      color:#0F376F;
+      font-size:16px;
+    }
+    .live-contributions{display:grid;gap:10px;margin-top:12px}
+    .live-section{
+      border:1px solid #E0E9F6;
+      border-radius:14px;
+      background:#FFFFFF;
+      padding:10px;
+    }
+    .live-section-title{
+      display:block;
+      color:#2D6DF6;
+      font-weight:900;
+      margin-bottom:8px;
+      font-size:13px;
+    }
+    .live-item{
+      margin:6px 0;
+      padding:8px 10px;
+      border-radius:12px;
+      background:#F4F8FF;
+      color:#15324A;
+      font-size:12.5px;
+      line-height:1.35;
+    }
+    .live-item strong{color:#0F376F}
+    .live-empty{
+      color:#8EA0B7;
+      font-size:12.5px;
+      font-style:italic;
     }
 
     .card,
@@ -497,7 +547,7 @@
 
           <div class="vote-panel">
             <h3>Votación del nombre del squad</h3>
-            <div class="hint">Cada persona vota por una sola opción. Si cambia de opinión, su voto anterior se resta automáticamente.</div>
+            <div class="hint">Cada persona vota por una sola opción. Cada integrante escribe en su propio espacio; los aportes aparecen en vivo para todos y nadie borra lo de otra persona.</div>
             <div class="vote-grid" id="voteGrid"></div>
             <div class="collab-status" id="collaborationStatus">Modo local: para participación en vivo, pega la configuración de Firebase en el código.</div>
           </div>
@@ -521,6 +571,12 @@
 
           <label for="findingsChannel">¿Por qué canal comunicaremos bloqueos, avances y hallazgos?</label>
           <textarea id="findingsChannel" placeholder="Ej: Teams, correo, tablero, chat o canal definido por el squad"></textarea>
+
+          <div class="live-team-panel">
+            <h3>Aportes del equipo en vivo</h3>
+            <div class="hint">Lo que escriba cada integrante se muestra aquí para todos. Cada persona solo edita su propio aporte.</div>
+            <div id="liveContributions" class="live-contributions"></div>
+          </div>
         </div>
       </details>
 
@@ -576,7 +632,7 @@
     const ctx2 = c2.getContext('2d');
     let activePart = 1;
     let userImage = null;
-    const storageKey = 'tableroSquadInvestigativoMejorado:v9';
+    const storageKey = 'tableroSquadInvestigativoMejorado:v10';
     const CANVAS_W = 1800;
     const CANVAS_H = 1400;
     window.teamVotes = window.teamVotes || {1:0,2:0,3:0,4:0,5:0,6:0};
@@ -586,6 +642,7 @@
     let firebaseReady = false;
     let applyingRemoteData = false;
     let syncTimer = null;
+    let participantsData = {}; // Aportes por integrante, sin pisarse ni bloquear campos
     const boardPath = 'boards/retro-identidad-squad-2026';
     const clientIdKey = 'retro-identidad-squad-client-id';
     const clientId = localStorage.getItem(clientIdKey) || (() => {
@@ -911,7 +968,8 @@
     }
 
     function optionName(n){
-      return val('teamName' + n) || 'Nombre por escribir';
+      const proposals = teamProposals();
+      return proposals[n-1] || 'Nombre por escribir';
     }
 
     function drawAvatar(ctx,x,y,scale=1,options={}){
@@ -1242,26 +1300,26 @@
 
       card(ctx,870,190,860,44,'Reto y expectativas','#F97316');
       let retoY = 278;
-      const hChallenge = adaptiveHeight(ctx,val('challenge'),370,{size:18,minH:140,maxH:260});
-      const hQuestions = adaptiveHeight(ctx,val('questions'),360,{size:18,minH:140,maxH:260});
+      const hChallenge = adaptiveHeight(ctx,boardText('challenge'),370,{size:18,minH:140,maxH:260});
+      const hQuestions = adaptiveHeight(ctx,boardText('questions'),360,{size:18,minH:140,maxH:260});
       const firstRow = Math.max(hChallenge,hQuestions);
-      smallCard(ctx,920,retoY,370,firstRow,'El reto que tenemos',val('challenge'),'#F97316','#FFF6ED',{size:18});
-      smallCard(ctx,1320,retoY,360,firstRow,'Dudas / expectativas',val('questions'),'#B17600','#FFF7D6',{size:18});
+      smallCard(ctx,920,retoY,370,firstRow,'El reto que tenemos',boardText('challenge'),'#F97316','#FFF6ED',{size:18});
+      smallCard(ctx,1320,retoY,360,firstRow,'Dudas / expectativas',boardText('questions'),'#B17600','#FFF7D6',{size:18});
       retoY += firstRow + 18;
-      retoY += adaptiveSmallCard(ctx,920,retoY,760,'Nombre elegido',val('chosenName') || 'Pendiente por elegir','#0F9F6E','#EAF8EF',{size:22,minH:88,maxH:180}) + 18;
+      retoY += adaptiveSmallCard(ctx,920,retoY,760,'Nombre elegido',boardText('chosenName','Pendiente por elegir'),'#0F9F6E','#EAF8EF',{size:22,minH:88,maxH:180}) + 18;
 
       const baseY = Math.max(nameY + 70, retoY + 50, 760);
       card(ctx,70,baseY,1660,44,'Reglas del juego','#174A8B');
       const ruleY = baseY + 92;
       const ruleW = 500;
       const ruleGap = 30;
-      const hDay = adaptiveHeight(ctx,val('connectionTime'),ruleW,{size:18,minH:150,maxH:260});
-      const hCer = adaptiveHeight(ctx,val('ceremonies'),ruleW,{size:18,minH:150,maxH:260});
-      const hChan = adaptiveHeight(ctx,val('findingsChannel'),ruleW,{size:18,minH:150,maxH:260});
+      const hDay = adaptiveHeight(ctx,boardText('connectionTime'),ruleW,{size:18,minH:150,maxH:260});
+      const hCer = adaptiveHeight(ctx,boardText('ceremonies'),ruleW,{size:18,minH:150,maxH:260});
+      const hChan = adaptiveHeight(ctx,boardText('findingsChannel'),ruleW,{size:18,minH:150,maxH:260});
       const hRules = Math.max(hDay,hCer,hChan);
-      smallCard(ctx,130,ruleY,ruleW,hRules,'📅 ¿Qué día dejaremos las ceremonias?',val('connectionTime'),'#2D6DF6','#F4F8FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
-      smallCard(ctx,130+ruleW+ruleGap,ruleY,ruleW,hRules,'🔁 ¿Qué ceremonias Scrum mantenemos, ajustamos o eliminamos?',val('ceremonies'),'#0F9F6E','#EAF8EF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
-      smallCard(ctx,130+(ruleW+ruleGap)*2,ruleY,ruleW,hRules,'📣 ¿Por qué canal comunicaremos bloqueos, avances y hallazgos?',val('findingsChannel'),'#7048E8','#F6F3FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
+      smallCard(ctx,130,ruleY,ruleW,hRules,'📅 ¿Qué día dejaremos las ceremonias?',boardText('connectionTime'),'#2D6DF6','#F4F8FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
+      smallCard(ctx,130+ruleW+ruleGap,ruleY,ruleW,hRules,'🔁 ¿Qué ceremonias Scrum mantenemos, ajustamos o eliminamos?',boardText('ceremonies'),'#0F9F6E','#EAF8EF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
+      smallCard(ctx,130+(ruleW+ruleGap)*2,ruleY,ruleW,hRules,'📣 ¿Por qué canal comunicaremos bloqueos, avances y hallazgos?',boardText('findingsChannel'),'#7048E8','#F6F3FF',{size:18,titleSize:18,titleMinSize:11,titleMaxLines:2});
 
       ctx.save();
       ctx.fillStyle = '#5C708A';
@@ -1272,7 +1330,7 @@
     }
 
 
-    function render(){ drawPart1(); drawPart2(); }
+    function render(){ drawPart1(); drawPart2(); renderLiveContributions(); }
 
     function show(part){
       activePart = part;
@@ -1348,13 +1406,123 @@
       toast(`Voto local por la opción ${choice}`);
     }
 
+    function ownerIdOf(owner){
+      if(!owner) return '';
+      return typeof owner === 'string' ? owner : (owner.clientId || '');
+    }
+
+    function ownerNameOf(owner){
+      if(!owner || typeof owner === 'string') return 'otro integrante';
+      return owner.name || 'otro integrante';
+    }
+
+    function currentParticipantName(){
+      return val('name') || 'Integrante';
+    }
+
+    function escapeHTML(value){
+      return String(value || '').replace(/[&<>"]|'/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+    }
+
+    function participantList(){
+      const items = Object.entries(participantsData || {}).map(([id,data]) => ({ id, data: data || {} }));
+      if(!items.some(item => item.id === clientId)){
+        items.push({ id: clientId, data: { name: currentParticipantName(), fields: {} } });
+      }
+      return items;
+    }
+
+    function collectFieldValues(field){
+      const items = [];
+      participantList().forEach(({id,data}) => {
+        const fieldsData = data.fields || {};
+        let text = id === clientId ? val(field) : (fieldsData[field] || '');
+        text = String(text || '').trim();
+        if(!text) return;
+        items.push({ id, name: data.name || (id === clientId ? currentParticipantName() : 'Integrante'), text });
+      });
+      return items;
+    }
+
+    function boardText(field, fallback='Pendiente por completar'){
+      const items = collectFieldValues(field);
+      if(!items.length) return fallback;
+      return items.map(item => `${item.name}: ${item.text}`).join(' • ');
+    }
+
+    function teamProposals(){
+      const seen = new Set();
+      const proposals = [];
+      participantList().forEach(({id,data}) => {
+        const fieldsData = data.fields || {};
+        for(let i=1;i<=6;i++){
+          let text = id === clientId ? val('teamName' + i) : (fieldsData['teamName' + i] || '');
+          text = String(text || '').trim();
+          const key = text.toLowerCase();
+          if(text && !seen.has(key)){
+            seen.add(key);
+            proposals.push(text);
+          }
+        }
+      });
+      return proposals.slice(0,6);
+    }
+
+    function renderLiveContributions(){
+      const container = el('liveContributions');
+      if(!container) return;
+      const liveFields = [
+        ['challenge','El reto que tenemos'],
+        ['questions','Dudas o expectativas frente al reto'],
+        ['connectionTime','Día de ceremonias'],
+        ['ceremonies','Ceremonias Scrum'],
+        ['findingsChannel','Canal para bloqueos, avances y hallazgos']
+      ];
+      container.innerHTML = liveFields.map(([field,label]) => {
+        const items = collectFieldValues(field);
+        const body = items.length
+          ? items.map(item => `<div class="live-item"><strong>${escapeHTML(item.name)}:</strong> ${escapeHTML(item.text)}</div>`).join('')
+          : '<div class="live-empty">Aún no hay aportes en esta pregunta.</div>';
+        return `<div class="live-section"><span class="live-section-title">${escapeHTML(label)}</span>${body}</div>`;
+      }).join('');
+    }
+
+    function pushParticipantName(){
+      if(!firebaseReady || !boardRef) return;
+      boardRef.child('participants').child(clientId).update({
+        name: currentParticipantName(),
+        updatedAt: Date.now()
+      }).catch(console.error);
+    }
+
+    function canEditSharedField(id){
+      return true;
+    }
+
+    function applyFieldLocks(){
+      sharedFields.forEach(field => {
+        const input = el(field);
+        if(!input) return;
+        input.disabled = false;
+        input.classList.remove('locked-shared');
+        input.title = '';
+      });
+    }
+
+    function claimFieldIfNeeded(id){
+      return Promise.resolve(true);
+    }
+
     function pushSharedData(id){
       if(applyingRemoteData || !firebaseReady || !boardRef || !sharedFields.includes(id)) return;
       clearTimeout(syncTimer);
       syncTimer = setTimeout(() => {
-        const payload = {};
-        sharedFields.forEach(field => payload[field] = val(field));
-        boardRef.child('shared').update(payload).catch((error) => {
+        const payload = {
+          name: currentParticipantName(),
+          updatedAt: Date.now()
+        };
+        payload[`fields/${id}`] = val(id);
+        boardRef.child('participants').child(clientId).update(payload).catch((error) => {
           console.error(error);
           setCollabStatus('Firebase conectado, pero no pudo guardar. Revisa las reglas de escritura.');
         });
@@ -1374,29 +1542,20 @@
         firebaseReady = true;
         setCollabStatus('Conectando con Firebase...');
 
-        boardRef.child('shared').once('value').then(snapshot => {
-          if(!snapshot.exists()){
-            const initial = {};
-            sharedFields.forEach(field => initial[field] = val(field));
-            return boardRef.child('shared').set(initial);
-          }
-        });
+        pushParticipantName();
 
         boardRef.on('value', snapshot => {
           const data = snapshot.val() || {};
           applyingRemoteData = true;
-          const shared = data.shared || {};
-          sharedFields.forEach(field => {
-            if(el(field) && shared[field] !== undefined && el(field).value !== shared[field]){
-              el(field).value = shared[field] || '';
-            }
-          });
+          participantsData = data.participants || {};
           applyingRemoteData = false;
+          applyFieldLocks();
+          renderLiveContributions();
           window.teamVotes = calculateVotes(data.voters || {});
           window.myVote = data.voters && data.voters[clientId] ? Number(data.voters[clientId].choice) : null;
           renderVoteGrid();
           render();
-          setCollabStatus('Firebase conectado: nombres, acuerdos y votos se actualizan en vivo.');
+          setCollabStatus('Firebase conectado: todos ven los aportes en vivo. Cada integrante edita solo su propio texto, sin bloquear a los demás.');
         }, error => {
           console.error(error);
           firebaseReady = false;
@@ -1414,8 +1573,8 @@
     fields.forEach(id=>{
       const input = el(id);
       if(!input) return;
-      input.addEventListener('input',()=>{ saveState(); renderVoteGrid(); render(); pushSharedData(id); });
-      input.addEventListener('change',()=>{ saveState(); renderVoteGrid(); render(); pushSharedData(id); });
+      input.addEventListener('input',()=>{ saveState(); renderVoteGrid(); render(); if(id === 'name') pushParticipantName(); pushSharedData(id); });
+      input.addEventListener('change',()=>{ saveState(); renderVoteGrid(); render(); if(id === 'name') pushParticipantName(); pushSharedData(id); });
     });
 
     el('photo').addEventListener('change',(e)=>{
@@ -1465,13 +1624,12 @@
       if(el('photo')) el('photo').value = '';
       try{ localStorage.setItem(storageKey, JSON.stringify(cleanState)); }catch(e){}
       if(firebaseReady && boardRef){
-        const sharedClean = {};
-        sharedFields.forEach(field => sharedClean[field] = cleanState[field] || '');
-        boardRef.child('shared').update(sharedClean);
+        boardRef.child('participants').child(clientId).remove().catch(console.error);
       }
+      applyFieldLocks();
       renderVoteGrid();
       render();
-      toast('Datos limpiados');
+      toast('Se limpió solo tu información. No se borró lo escrito por otras personas.');
     });
 
     window.renderBoard = render;
@@ -1479,6 +1637,7 @@
     window.showBoardToast = toast;
 
     loadState();
+    applyFieldLocks();
     renderVoteGrid();
     initCollaboration();
     render();
