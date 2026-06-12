@@ -186,6 +186,52 @@
       font-size:12.5px;
       line-height:1.35;
     }
+    .vote-panel{
+      margin-top:16px;
+      padding:14px;
+      border:1px solid #DCE9FF;
+      border-radius:18px;
+      background:linear-gradient(180deg,#F8FBFF,#FFFFFF);
+    }
+    .vote-panel h3{
+      margin:0 0 8px;
+      color:var(--azul-oscuro);
+      font-size:16px;
+    }
+    .vote-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:10px;
+    }
+    .vote-btn{
+      white-space:normal;
+      text-align:left;
+      font-size:13px;
+      line-height:1.2;
+      padding:10px 12px;
+      background:#FFFFFF;
+      color:#15324A;
+      border:1px solid #CFE0F8;
+    }
+    .vote-btn.active{
+      color:white;
+      background:linear-gradient(135deg,var(--azul),var(--azul-medio));
+      border-color:transparent;
+    }
+    .vote-count{
+      display:block;
+      margin-top:4px;
+      font-size:12px;
+      font-weight:900;
+      opacity:.82;
+    }
+    .collab-status{
+      margin-top:10px;
+      color:#657893;
+      font-size:12.5px;
+      line-height:1.35;
+    }
 
     .card,
     .card p,
@@ -448,6 +494,13 @@
 
           <label for="chosenName">Nombre elegido o favorito</label>
           <input id="chosenName" placeholder="Se completa después de la votación" />
+
+          <div class="vote-panel">
+            <h3>Votación del nombre del squad</h3>
+            <div class="hint">Cada persona vota por una sola opción. Si cambia de opinión, su voto anterior se resta automáticamente.</div>
+            <div class="vote-grid" id="voteGrid"></div>
+            <div class="collab-status" id="collaborationStatus">Modo local: para participación en vivo, pega la configuración de Firebase en el código.</div>
+          </div>
         </div>
       </details>
 
@@ -464,10 +517,10 @@
           <textarea id="connectionTime" placeholder="Ej: martes en la mañana o jueves al cierre"></textarea>
 
           <label for="ceremonies">¿Qué ceremonias Scrum mantenemos, ajustamos o eliminamos?</label>
-          <textarea id="ceremonies">Definir cuáles ceremonias mantenemos, cuáles ajustamos y cuáles eliminamos para trabajar con foco</textarea>
+          <textarea id="ceremonies" placeholder="Ej: daily, review, retro o espacios que quieran mantener, ajustar o eliminar"></textarea>
 
           <label for="findingsChannel">¿Por qué canal comunicaremos bloqueos, avances y hallazgos?</label>
-          <textarea id="findingsChannel">Teams, tablero de seguimiento y resumen ejecutivo para comunicar bloqueos, avances y hallazgos</textarea>
+          <textarea id="findingsChannel" placeholder="Ej: Teams, correo, tablero, chat o canal definido por el squad"></textarea>
         </div>
       </details>
 
@@ -501,6 +554,21 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite">Listo</div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJK04JBG786QE-s4AJMs3G9Ph0eoqV8k",
+      authDomain: "conozcamos-al-equipo.firebaseapp.com",
+      databaseURL: "https://conozcamos-al-equipo-default-rtdb.firebaseio.com",
+      projectId: "conozcamos-al-equipo",
+      storageBucket: "conozcamos-al-equipo.firebasestorage.app",
+      messagingSenderId: "34133533939",
+      appId: "1:34133533939:web:6ce5861e4a26f623488386",
+      measurementId: "G-RP5N7YLYPQ"
+    };
+  </script>
+
   <script>
     const c1 = document.getElementById('part1');
     const c2 = document.getElementById('part2');
@@ -508,9 +576,24 @@
     const ctx2 = c2.getContext('2d');
     let activePart = 1;
     let userImage = null;
-    const storageKey = 'tableroSquadInvestigativoMejorado:v8';
+    const storageKey = 'tableroSquadInvestigativoMejorado:v9';
     const CANVAS_W = 1800;
     const CANVAS_H = 1400;
+    window.teamVotes = window.teamVotes || {1:0,2:0,3:0,4:0,5:0,6:0};
+    window.myVote = window.myVote || null;
+    let db = null;
+    let boardRef = null;
+    let firebaseReady = false;
+    let applyingRemoteData = false;
+    let syncTimer = null;
+    const boardPath = 'boards/retro-identidad-squad-2026';
+    const clientIdKey = 'retro-identidad-squad-client-id';
+    const clientId = localStorage.getItem(clientIdKey) || (() => {
+      const id = 'p_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem(clientIdKey, id);
+      return id;
+    })();
+    const sharedFields = ['teamName1','teamName2','teamName3','teamName4','teamName5','teamName6','chosenName','challenge','questions','connectionTime','ceremonies','findingsChannel'];
 
     const fields = [
       'name','superpowerText','role','roleContribution','hero','homeAddress','birthday','emergencyPerson','emergencyPhone',
@@ -828,7 +911,7 @@
     }
 
     function optionName(n){
-      return val('teamName' + n) || `Opción ${n}`;
+      return val('teamName' + n) || 'Nombre por escribir';
     }
 
     function drawAvatar(ctx,x,y,scale=1,options={}){
@@ -1111,7 +1194,8 @@
       ctx.font = '900 14px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`Votar por esta opción · Votos: 0`,x+w/2,y+h-31);
+      const votes = Number(window.teamVotes?.[String(index)] ?? window.teamVotes?.[index] ?? 0);
+      ctx.fillText(`Votar por esta opción · Votos: ${votes}`,x+w/2,y+h-31);
       ctx.restore();
     }
 
@@ -1208,11 +1292,130 @@
       link.click();
     }
 
+    function setCollabStatus(message){
+      const status = el('collaborationStatus');
+      if(status) status.textContent = message;
+    }
+
+    function emptyVotes(){
+      return {1:0,2:0,3:0,4:0,5:0,6:0};
+    }
+
+    function calculateVotes(voters){
+      const counts = emptyVotes();
+      Object.values(voters || {}).forEach(vote => {
+        const choice = Number(vote && vote.choice);
+        if(choice >= 1 && choice <= 6) counts[choice] += 1;
+      });
+      return counts;
+    }
+
+    function renderVoteGrid(){
+      const grid = el('voteGrid');
+      if(!grid) return;
+      grid.innerHTML = '';
+      for(let i=1;i<=6;i++){
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'vote-btn' + (Number(window.myVote) === i ? ' active' : '');
+        button.innerHTML = `<strong>Opción ${i}</strong><br>${optionName(i)}<span class="vote-count">Votos: ${window.teamVotes[i] || 0}</span>`;
+        button.addEventListener('click', () => castVote(i));
+        grid.appendChild(button);
+      }
+    }
+
+    function castVote(index){
+      const choice = Number(index);
+      if(!(choice >= 1 && choice <= 6)) return;
+      if(firebaseReady && boardRef){
+        boardRef.child('voters').child(clientId).set({
+          choice,
+          updatedAt: Date.now()
+        }).then(() => {
+          toast(`Voto registrado por la opción ${choice}`);
+        }).catch((error) => {
+          console.error(error);
+          toast('No se pudo registrar el voto');
+        });
+        return;
+      }
+      const previous = Number(window.myVote);
+      if(previous >= 1 && previous <= 6) window.teamVotes[previous] = Math.max(0,(window.teamVotes[previous] || 0) - 1);
+      window.myVote = choice;
+      window.teamVotes[choice] = (window.teamVotes[choice] || 0) + 1;
+      renderVoteGrid();
+      render();
+      toast(`Voto local por la opción ${choice}`);
+    }
+
+    function pushSharedData(id){
+      if(applyingRemoteData || !firebaseReady || !boardRef || !sharedFields.includes(id)) return;
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(() => {
+        const payload = {};
+        sharedFields.forEach(field => payload[field] = val(field));
+        boardRef.child('shared').update(payload).catch((error) => {
+          console.error(error);
+          setCollabStatus('Firebase conectado, pero no pudo guardar. Revisa las reglas de escritura.');
+        });
+      }, 350);
+    }
+
+    function initCollaboration(){
+      try{
+        if(!window.firebase || !firebaseConfig || !firebaseConfig.apiKey){
+          setCollabStatus('Modo local: Firebase no está disponible.');
+          renderVoteGrid();
+          return;
+        }
+        if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+        boardRef = db.ref(boardPath);
+        firebaseReady = true;
+        setCollabStatus('Conectando con Firebase...');
+
+        boardRef.child('shared').once('value').then(snapshot => {
+          if(!snapshot.exists()){
+            const initial = {};
+            sharedFields.forEach(field => initial[field] = val(field));
+            return boardRef.child('shared').set(initial);
+          }
+        });
+
+        boardRef.on('value', snapshot => {
+          const data = snapshot.val() || {};
+          applyingRemoteData = true;
+          const shared = data.shared || {};
+          sharedFields.forEach(field => {
+            if(el(field) && shared[field] !== undefined && el(field).value !== shared[field]){
+              el(field).value = shared[field] || '';
+            }
+          });
+          applyingRemoteData = false;
+          window.teamVotes = calculateVotes(data.voters || {});
+          window.myVote = data.voters && data.voters[clientId] ? Number(data.voters[clientId].choice) : null;
+          renderVoteGrid();
+          render();
+          setCollabStatus('Firebase conectado: nombres, acuerdos y votos se actualizan en vivo.');
+        }, error => {
+          console.error(error);
+          firebaseReady = false;
+          setCollabStatus('No se pudo conectar con Firebase. Revisa la URL o las reglas.');
+          renderVoteGrid();
+        });
+      }catch(error){
+        console.error(error);
+        firebaseReady = false;
+        setCollabStatus('Modo local: hubo un problema inicializando Firebase.');
+        renderVoteGrid();
+      }
+    }
+
     fields.forEach(id=>{
       const input = el(id);
       if(!input) return;
-      input.addEventListener('input',()=>{ saveState(); render(); });
-      input.addEventListener('change',()=>{ saveState(); render(); });
+      input.addEventListener('input',()=>{ saveState(); renderVoteGrid(); render(); pushSharedData(id); });
+      input.addEventListener('change',()=>{ saveState(); renderVoteGrid(); render(); pushSharedData(id); });
     });
 
     el('photo').addEventListener('change',(e)=>{
@@ -1261,11 +1464,23 @@
       userImage = null;
       if(el('photo')) el('photo').value = '';
       try{ localStorage.setItem(storageKey, JSON.stringify(cleanState)); }catch(e){}
+      if(firebaseReady && boardRef){
+        const sharedClean = {};
+        sharedFields.forEach(field => sharedClean[field] = cleanState[field] || '');
+        boardRef.child('shared').update(sharedClean);
+      }
+      renderVoteGrid();
       render();
       toast('Datos limpiados');
     });
 
+    window.renderBoard = render;
+    window.getOptionName = optionName;
+    window.showBoardToast = toast;
+
     loadState();
+    renderVoteGrid();
+    initCollaboration();
     render();
   </script>
 </body>
